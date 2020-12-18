@@ -78,10 +78,9 @@ public class ModelManager {
 				}
 			}
 			boolean stored = mod.stored();
-			boolean computeWhenNeeded = mod.computeWhenNeeded();
 			// Load fields
 			List<Fields> fields = this.loadFields(modelClass);
-			Models<E> model = new Models<E>(modelClass, id, stored, computeWhenNeeded, fields);
+			Models<E> model = new Models<E>(modelClass, id, stored, fields);
 			this.models.put(id, model);
 		}
 	}

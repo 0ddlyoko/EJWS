@@ -1,8 +1,8 @@
-package me.oddlyoko.example.example2;
+package me.oddlyoko.ejws.example2;
 
 import me.oddlyoko.ejws.exceptions.ModelLoadException;
 import me.oddlyoko.ejws.model.ModelManager;
-import me.oddlyoko.example.example2.model.Example1;
+import me.oddlyoko.ejws.example2.model.Example1;
 
 public class Example {
 

@@ -13,14 +13,12 @@ public class Models<E> {
 	private Class<E> clazz;
 	private String id;
 	private boolean stored;
-	private boolean computeWhenNeeded;
 	private List<Fields> fields;
 
-	protected Models(Class<E> clazz, String id, boolean stored, boolean computeWhenNeeded, List<Fields> fields) {
+	protected Models(Class<E> clazz, String id, boolean stored, List<Fields> fields) {
 		this.clazz = clazz;
 		this.id = id;
 		this.stored = stored;
-		this.computeWhenNeeded = computeWhenNeeded;
 		this.fields = fields;
 	}
 
@@ -39,8 +37,6 @@ public class Models<E> {
 		String id() default "";
 
 		boolean stored() default true;
-
-		boolean computeWhenNeeded() default false;
 	}
 
 	@Target({ ElementType.METHOD })

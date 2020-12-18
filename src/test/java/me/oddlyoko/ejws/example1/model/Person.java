@@ -1,4 +1,4 @@
-package me.oddlyoko.example.example1.model;
+package me.oddlyoko.ejws.example1.model;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -6,7 +6,7 @@ import me.oddlyoko.ejws.model.Fields;
 import me.oddlyoko.ejws.model.Models;
 
 @Getter
-@Models.Model(stored = true, computeWhenNeeded = true)
+@Models.Model(stored = true)
 public class Person {
 	@Fields.Field
 	@Setter
