@@ -1,30 +1,29 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
 
-    <groupId>me.oddlyoko</groupId>
-    <artifactId>EJWS</artifactId>
-    <version>0.0.1</version>
-    <packaging>jar</packaging>
+	<groupId>me.oddlyoko</groupId>
+	<artifactId>EJWS</artifactId>
+	<version>0.0.1</version>
+	<packaging>jar</packaging>
 
-    <name>EJWS</name>
-    <url>https://github.com/0ddlyoko/EJWS</url>
+	<name>EJWS</name>
+	<url>https://github.com/0ddlyoko/EJWS</url>
 
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
-    </properties>
-    <developers>
-        <developer>
-            <name>0ddlyoko</name>
-            <email>0ddlyokoOfficial@gmail.com</email>
-            <roles>
-                <role>Developer</role>
-            </roles>
-        </developer>
-    </developers>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+	</properties>
+	<developers>
+		<developer>
+			<name>0ddlyoko</name>
+			<email>0ddlyokoOfficial@gmail.com</email>
+			<roles>
+				<role>Developer</role>
+			</roles>
+		</developer>
+	</developers>
 	<build>
 		<defaultGoal>clean install</defaultGoal>
 		<finalName>EJWS-${project.version}</finalName>
@@ -74,21 +73,21 @@
 		</plugins>
 	</build>
 
-    <!-- Dependencies -->
-    <dependencies>
-        <!-- Logging -->
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>1.7.30</version>
-        </dependency>
+	<!-- Dependencies -->
+	<dependencies>
+		<!-- Logging -->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.7.30</version>
+		</dependency>
 
-        <!-- Lombok -->
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>1.18.16</version>
-        </dependency>
+		<!-- Lombok -->
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.18.16</version>
+		</dependency>
 
 		<!--Cglib -->
 		<dependency>
@@ -96,5 +95,12 @@
 			<artifactId>cglib</artifactId>
 			<version>3.3.0</version>
 		</dependency>
-    </dependencies>
+
+		<!-- PostgreSQL -->
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<version>42.2.18</version>
+		</dependency>
+	</dependencies>
 </project>

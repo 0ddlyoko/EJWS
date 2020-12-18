@@ -8,13 +8,17 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import me.oddlyoko.ejws.EJWS;
 import me.oddlyoko.ejws.exceptions.ModelLoadException;
 
 public class ModelManager {
 	private static final Logger LOG = LoggerFactory.getLogger(ModelManager.class);
+
+	private EJWS ejws;
 	private HashMap<String, Models<?>> models;
 
-	public ModelManager() {
+	public ModelManager(EJWS ejws) {
+		this.ejws = ejws;
 		this.models = new HashMap<>();
 	}
 
