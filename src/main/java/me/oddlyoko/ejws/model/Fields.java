@@ -5,6 +5,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.InvocationTargetException;
+import java.sql.Types;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -16,20 +17,24 @@ import lombok.Setter;
 public class Fields {
 	private java.lang.reflect.Field field;
 	private Type type;
-	private java.lang.String id;
-	private java.lang.String name;
+	private String id;
+	private String name;
 	private boolean stored;
 	private ComputeMethod compute;
 	@Setter
 	private boolean computeWhenNeeded;
+	private boolean blank;
+	private boolean empty;
 
-	protected Fields(Type type, java.lang.String id, java.lang.String name, boolean stored, ComputeMethod compute,
-			java.lang.reflect.Field field) {
+	protected Fields(Type type, String id, String name, boolean stored, ComputeMethod compute, boolean blank,
+			boolean empty, java.lang.reflect.Field field) {
 		this.type = type;
 		this.id = id;
 		this.name = name;
 		this.stored = stored;
 		this.compute = compute;
+		this.blank = blank;
+		this.empty = empty;
 		this.field = field;
 		this.computeWhenNeeded = false;
 	}
@@ -63,12 +68,45 @@ public class Fields {
 
 		boolean stored() default true;
 
-		java.lang.String compute() default "";
+		String compute() default "";
+
+		/**
+		 * Could the field be null in database ?
+		 */
+		boolean blank() default false;
+
+		/**
+		 * Could the field be empty in database ?
+		 */
+		boolean empty() default false;
 	}
 
-	protected static enum Type {
-		STRING,
-		INTEGER,
-		BOOLEAN;
+	public static enum Type {
+		STRING(Types.BOOLEAN, "VARCHAR"),
+		INTEGER(Types.INTEGER, "INT"),
+		BOOLEAN(Types.VARCHAR, "BOOLEAN");
+
+		private int sqlType;
+		private String sqlKeyword;
+
+		private Type(int sqlType, String sqlKeyword) {
+			this.sqlType = sqlType;
+			this.sqlKeyword = sqlKeyword;
+		}
+
+		public int getSqlType() {
+			return sqlType;
+		}
+
+		public String getSqlKeyword() {
+			return sqlKeyword;
+		}
+
+		public static Type fromSqlType(int sqlType) {
+			for (Type t : values())
+				if (t.sqlType == sqlType)
+					return t;
+			return STRING;
+		}
 	}
 }

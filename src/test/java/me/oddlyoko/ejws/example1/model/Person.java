@@ -6,7 +6,7 @@ import me.oddlyoko.ejws.model.Fields;
 import me.oddlyoko.ejws.model.Models;
 
 @Getter
-@Models.Model(stored = true)
+@Models.Model
 public class Person {
 	@Fields.Field
 	@Setter

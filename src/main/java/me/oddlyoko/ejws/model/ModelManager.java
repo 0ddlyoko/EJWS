@@ -81,6 +81,7 @@ public class ModelManager {
 					id = modelClass.getSimpleName();
 				}
 			}
+			id = id.toLowerCase();
 			boolean stored = mod.stored();
 			// Load fields
 			List<Fields> fields = this.loadFields(modelClass);
@@ -136,6 +137,8 @@ public class ModelManager {
 		Fields.Type type = getFieldType(field);
 		boolean stored = annotation.stored();
 		String compute = annotation.compute();
+		boolean blank = annotation.blank();
+		boolean empty = annotation.empty();
 		// Check if this method exists
 		ComputeMethod computeMethod = null;
 		if (compute != null && !"".equalsIgnoreCase(compute.trim())) {
@@ -151,7 +154,7 @@ public class ModelManager {
 						String.format("Method %s not found for computed value of %s", compute, name));
 			}
 		}
-		return new Fields(type, id, name, stored, computeMethod, field);
+		return new Fields(type, id, name, stored, computeMethod, blank, empty, field);
 	}
 
 	private Fields.Type getFieldType(java.lang.reflect.Field f) {

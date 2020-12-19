@@ -37,6 +37,7 @@ public class ProxiedModel<E> implements MethodInterceptor {
 		return null;
 	}
 
+	@Override
 	public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable {
 		String name = method.getName();
 		if ((name.startsWith("get") && name.length() > 3) || (name.startsWith("is") && name.length() > 2)) {
@@ -59,6 +60,6 @@ public class ProxiedModel<E> implements MethodInterceptor {
 		e.setCallback(new ProxiedModel<E>(model));
 		@SuppressWarnings("unchecked")
 		E bean = (E) e.create();
-		return (E) bean;
+		return bean;
 	}
 }
