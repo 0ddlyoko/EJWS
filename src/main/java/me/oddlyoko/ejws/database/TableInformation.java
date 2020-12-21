@@ -26,15 +26,15 @@ public class TableInformation {
 		private String id;
 		private Fields.Type type;
 		private boolean blank;
-        private boolean autoIncrement;
-        
-        public String toSQL() {
+		private boolean autoIncrement;
+
+		public String toSQL() {
 			StringBuilder sb = new StringBuilder();
 			sb.append(id).append(" ");
 			sb.append(type.getSqlKeyword()).append(" ");
 			if (!blank)
 				sb.append("NOT NULL");
 			return sb.toString();
-        }
+		}
 	}
 }

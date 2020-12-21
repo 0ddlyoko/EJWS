@@ -2,18 +2,21 @@ package me.oddlyoko.ejws.database;
 
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import lombok.Getter;
-import me.oddlyoko.ejws.database.TableInformation.ColumnInformation;
+import me.oddlyoko.ejws.EJWS;
+import me.oddlyoko.ejws.model.Fields;
 import me.oddlyoko.ejws.model.Models;
 
 public class DatabaseManager {
-	private static final Logger LOG = LoggerFactory.getLogger(DatabaseManager.class);
+	private static final Logger LOG = LogManager.getLogger(DatabaseManager.class);
 
 	@Getter
 	private DatabaseModel databaseModel;
@@ -29,6 +32,14 @@ public class DatabaseManager {
 
 	public Connection createConnection() throws SQLException {
 		return new Connection(this.databaseModel.getConnection());
+	}
+
+	public void loadModels() throws SQLException {
+		try (Connection c = this.createConnection()) {
+			for (Models<?> model : EJWS.getInstance().getModelManager().getModels().values()) {
+				this.loadModel(c, model, true);
+			}
+		}
 	}
 
 	/**
@@ -49,20 +60,51 @@ public class DatabaseManager {
 	 * </li>
 	 * </ul>
 	 * 
-	 * @param connection The connection
-	 * @param model      The model to load
+	 * @param connection
+	 *            The connection
+	 * @param model
+	 *            The model to load
+	 * @param commit
+	 *            If true, commit the transaction
 	 */
-	public void loadModel(Connection connection, Models<?> model) throws SQLException {
+	private void loadModel(Connection connection, Models<?> model, boolean commit) throws SQLException {
+		LOG.info("Loading model {}", model.getId());
 		if (!model.isStored())
 			return;
 		String tableName = model.getId();
 		// Check if the table exist
-		Map<String, ColumnInformation> columns = DatabaseUtil.getColumnsInformation(model);
+		TableInformation tableInformation = DatabaseUtil.getTableInformations(model);
+		this.saveTableInformation(model.getId(), tableInformation);
 		if (!connection.tableExists(tableName)) {
-			connection.createTable(tableName, columns, true);
+			connection.createTable(tableName, tableInformation.getColumns(), commit);
 		} else {
-			connection.alterTable(tableName, columns, true);
+			List<String> added = connection.alterTable(tableName, tableInformation.getColumns(), false);
+			if (added.stream().map(id -> model.getField(id).get()).anyMatch(Fields::isComputable)) {
+				LOG.info("Computing {} ...", model.getId());
+				// We should compute
+				// Get fields to compute
+				List<Fields> fields = added.stream().map(id -> model.getField(id).get()).collect(Collectors.toList());
+				// Compute fields
+				this.computeFields(connection, model, fields);
+			}
+			if (commit)
+				connection.commit();
 		}
+	}
+
+	/**
+	 * Load all data from the database, compute fields and save data to the
+	 * database
+	 * 
+	 * @param connection
+	 *            The connection
+	 * @param model
+	 *            The model
+	 * @param fields
+	 *            The fields to compute
+	 */
+	private void computeFields(Connection connection, Models<?> model, List<Fields> fields) throws SQLException {
+
 	}
 
 	public Optional<TableInformation> getTableInformation(String tableName) {

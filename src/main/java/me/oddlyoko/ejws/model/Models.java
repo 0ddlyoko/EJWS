@@ -5,6 +5,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.List;
+import java.util.Optional;
 
 import lombok.Getter;
 
@@ -22,11 +23,11 @@ public class Models<E> {
 		this.fields = fields;
 	}
 
-	public Fields getField(String id) {
+	public Optional<Fields> getField(String id) {
 		for (Fields f : this.fields)
 			if (f.getId().equals(id))
-				return f;
-		return null;
+				return Optional.of(f);
+		return Optional.empty();
 	}
 
 	@Target({ ElementType.TYPE })

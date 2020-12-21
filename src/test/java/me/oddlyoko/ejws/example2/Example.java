@@ -1,17 +1,17 @@
 package me.oddlyoko.ejws.example2;
 
+import me.oddlyoko.ejws.EJWS;
 import me.oddlyoko.ejws.example2.model.Example1;
 import me.oddlyoko.ejws.exceptions.ModelLoadException;
-import me.oddlyoko.ejws.model.ModelManager;
 
 public class Example {
 
 	public static void main(String[] args) throws ModelLoadException {
-		ModelManager mm = new ModelManager(null);
+		EJWS ejws = new EJWS();
 		// Load classes
-		mm.loadModel(Example1.class);
+		ejws.getModelManager().loadModel(Example1.class);
 
-		Example1 e = mm.newInstance(Example1.class);
+		Example1 e = ejws.getModelManager().newInstance(Example1.class);
 		e.setA(1);
 		System.out.println(String.format("B: %d", e.getB()));
 		System.out.println(String.format("C: %d", e.getC()));

@@ -1,6 +1,5 @@
 package me.oddlyoko.ejws.database;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -20,7 +19,8 @@ public class DatabaseUtil {
 	 * Load column information of a model<br />
 	 * If a column has stored to false, do not add it
 	 * 
-	 * @param model The model
+	 * @param model
+	 *            The model
 	 * @return A list containing all columns of a model
 	 */
 	public static Map<String, ColumnInformation> getColumnsInformation(Models<?> model) {
@@ -38,14 +38,27 @@ public class DatabaseUtil {
 	}
 
 	/**
-	 * Compare two Collection of String and returns ids that are on left and not on
-	 * right
+	 * Compare two Collection of String and returns ids that are on left and not
+	 * on right
 	 * 
-	 * @param left  The collection to compare
-	 * @param right The second collection to compare
+	 * @param left
+	 *            The collection to compare
+	 * @param right
+	 *            The second collection to compare
 	 * @return
 	 */
 	public static List<String> compareColumnInformation(Collection<String> left, Collection<String> right) {
-		return left.stream().filter(id -> right.contains(id)).collect(Collectors.toList());
+		return left.stream().filter(id -> !right.contains(id)).collect(Collectors.toList());
+	}
+
+	/**
+	 * Retrieves informations about a table from a model
+	 * 
+	 * @param model
+	 *            The model
+	 * @return Information about a table
+	 */
+	public static TableInformation getTableInformations(Models<?> model) {
+		return new TableInformation(model.getId(), DatabaseUtil.getColumnsInformation(model));
 	}
 }

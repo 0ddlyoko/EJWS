@@ -5,20 +5,19 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-import me.oddlyoko.ejws.EJWS;
+import lombok.Getter;
 import me.oddlyoko.ejws.exceptions.ModelLoadException;
 
 public class ModelManager {
-	private static final Logger LOG = LoggerFactory.getLogger(ModelManager.class);
+	private static final Logger LOG = LogManager.getLogger(ModelManager.class);
 
-	private EJWS ejws;
+	@Getter
 	private HashMap<String, Models<?>> models;
 
-	public ModelManager(EJWS ejws) {
-		this.ejws = ejws;
+	public ModelManager() {
 		this.models = new HashMap<>();
 	}
 

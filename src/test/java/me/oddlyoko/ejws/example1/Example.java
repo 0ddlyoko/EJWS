@@ -19,10 +19,12 @@ public class Example {
 		System.out.println(String.format("Age: %d", p.getAge()));
 		System.out.println(String.format("Old: %b", p.isOld()));
 
-		try (Connection connection = ejws.getDatabaseManager().createConnection()) {
-			System.out.println("Connected !");
-			System.out.println("Loading Person !");
-			ejws.getDatabaseManager().loadModel(connection, ejws.getModelManager().getModel(Person.class));
+		try {
+			ejws.getDatabaseManager().loadModels();
+			try (Connection connection = ejws.getDatabaseManager().createConnection()) {
+				System.out.println("Connected !");
+				System.out.println("Loading Person !");
+			}
 		} catch (SQLException ex) {
 			ex.printStackTrace();
 		}
