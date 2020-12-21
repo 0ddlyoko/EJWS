@@ -41,6 +41,8 @@ public class DatabaseModel {
 		info.setProperty("user", this.username);
 		info.setProperty("password", this.password);
 		// info.setProperty("ssl", "true");
-		return DriverManager.getConnection(url, info);
+		Connection c = DriverManager.getConnection(url, info);
+		c.setAutoCommit(false);
+		return c;
 	}
 }

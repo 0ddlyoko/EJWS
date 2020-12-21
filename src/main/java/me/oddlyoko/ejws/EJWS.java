@@ -6,12 +6,19 @@ import me.oddlyoko.ejws.model.ModelManager;
 
 @Getter
 public class EJWS {
+	private static EJWS instance;
 	private DatabaseManager databaseManager;
 	private ModelManager modelManager;
 
 	public EJWS() {
-		this.databaseManager = new DatabaseManager(this, "localhost", 5432, "postgres", "admin", "EJWS");
+		instance = this;
+		// this.databaseManager = new DatabaseManager("localhost", 5432, "postgres", "admin", "EJWS");
+		this.databaseManager = new DatabaseManager("localhost", 5432, "odoo", "odoo", "EJWS");
 		this.modelManager = new ModelManager(this);
+	}
+
+	public static EJWS getInstance() {
+		return instance;
 	}
 
 	public static void main(String[] args) {

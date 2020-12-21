@@ -9,18 +9,11 @@ import me.oddlyoko.ejws.model.Fields;
 @Getter
 public class TableInformation {
 	private String id;
-	private boolean exist;
 	private Map<String, ColumnInformation> columns;
 
 	public TableInformation(String id, Map<String, ColumnInformation> columns) {
 		this.id = id;
 		this.columns = columns;
-		this.exist = true;
-	}
-
-	public TableInformation(String id, boolean exist) {
-		this.id = id;
-		this.exist = exist;
 	}
 
 	public ColumnInformation getColumn(String id) {
@@ -33,6 +26,15 @@ public class TableInformation {
 		private String id;
 		private Fields.Type type;
 		private boolean blank;
-		private boolean autoIncrement;
+        private boolean autoIncrement;
+        
+        public String toSQL() {
+			StringBuilder sb = new StringBuilder();
+			sb.append(id).append(" ");
+			sb.append(type.getSqlKeyword()).append(" ");
+			if (!blank)
+				sb.append("NOT NULL");
+			return sb.toString();
+        }
 	}
 }

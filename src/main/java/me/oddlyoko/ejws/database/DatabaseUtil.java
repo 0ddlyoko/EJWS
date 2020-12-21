@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import me.oddlyoko.ejws.database.TableInformation.ColumnInformation;
 import me.oddlyoko.ejws.model.Fields;
@@ -16,35 +17,10 @@ import me.oddlyoko.ejws.model.Models;
 public class DatabaseUtil {
 
 	/**
-	 * Transform a list of ColumnInformation to a list of PostgreSQL column
-	 * syntax
-	 * 
-	 * @param columns
-	 *            Columns
-	 * @return
-	 */
-	public static List<String> columnInformationToColumnSQL(Collection<ColumnInformation> columns) {
-		List<String> result = new ArrayList<>();
-		for (ColumnInformation ci : columns) {
-			String id = ci.getId();
-			Fields.Type type = ci.getType();
-			boolean nullable = ci.isBlank();
-			StringBuilder sb = new StringBuilder();
-			sb.append(id).append(" ");
-			sb.append(type.getSqlKeyword()).append(" ");
-			if (!nullable)
-				sb.append("NOT NULL");
-			result.add(sb.toString());
-		}
-		return result;
-	}
-
-	/**
 	 * Load column information of a model<br />
 	 * If a column has stored to false, do not add it
 	 * 
-	 * @param model
-	 *            The model
+	 * @param model The model
 	 * @return A list containing all columns of a model
 	 */
 	public static Map<String, ColumnInformation> getColumnsInformation(Models<?> model) {
@@ -62,20 +38,14 @@ public class DatabaseUtil {
 	}
 
 	/**
-	 * Compare two HashMap of {@link ColumnInformation} and returns ids that are
-	 * on left and not on right
+	 * Compare two Collection of String and returns ids that are on left and not on
+	 * right
 	 * 
-	 * @param left
-	 *            The collection to compare
-	 * @param right
-	 *            The second collection to compare
+	 * @param left  The collection to compare
+	 * @param right The second collection to compare
 	 * @return
 	 */
-	public static List<String> compareColumnInformation(Collection<String> left, Map<String, ColumnInformation> right) {
-		List<String> result = new ArrayList<>();
-		for (String id : left)
-			if (!right.containsKey(id))
-				result.add(id);
-		return result;
+	public static List<String> compareColumnInformation(Collection<String> left, Collection<String> right) {
+		return left.stream().filter(id -> right.contains(id)).collect(Collectors.toList());
 	}
 }

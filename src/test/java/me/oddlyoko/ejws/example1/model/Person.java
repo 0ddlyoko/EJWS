@@ -13,7 +13,7 @@ public class Person {
 	private String name;
 	@Fields.Field(compute = "computeAge")
 	private int age = 18;
-	@Fields.Field(compute = "computeOld", stored = false)
+	@Fields.Field(compute = "computeOld", stored = true)
 	public boolean old;
 
 	@Models.Require({ "name" })
