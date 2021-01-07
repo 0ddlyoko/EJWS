@@ -1,23 +1,22 @@
 package me.oddlyoko.ejws.model;
 
-import java.lang.reflect.Method;
-import java.util.HashMap;
-
-import lombok.Getter;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 
-@Getter
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
+
 public class ProxiedModel<E> implements MethodInterceptor {
-	private Models<E> model;
-	private HashMap<String, FieldInstance> fields;
+	private final Models<E> model;
+	private final Map<String, FieldInstance> fields;
 
 	private ProxiedModel(Models<E> model) {
 		this.model = model;
 		this.fields = new HashMap<>();
 		// Initialize fields for computed values
-		for (Fields f : model.getFields()) {
+		for (Fields f : model.getFields().values()) {
 			FieldInstance fi = new FieldInstance(this, f);
 			this.fields.put(f.getId(), fi);
 		}
@@ -42,7 +41,7 @@ public class ProxiedModel<E> implements MethodInterceptor {
 		String name = method.getName();
 		if ((name.startsWith("get") && name.length() > 3) || (name.startsWith("is") && name.length() > 2)) {
 			// Get variable
-			char propName[] = name.substring(name.startsWith("get") ? 3 : 2).toCharArray();
+			char[] propName = name.substring(name.startsWith("get") ? 3 : 2).toCharArray();
 			propName[0] = Character.toLowerCase(propName[0]);
 			// Get field
 			FieldInstance fi = getFieldFromName(new String(propName));
@@ -53,11 +52,19 @@ public class ProxiedModel<E> implements MethodInterceptor {
 		return proxy.invokeSuper(obj, args);
 	}
 
+	public Models<E> getModel() {
+		return model;
+	}
+
+	public Map<String, FieldInstance> getFields() {
+		return fields;
+	}
+
 	public static <E> E newInstance(Models<E> model) {
 		Class<E> clazz = model.getClazz();
 		Enhancer e = new Enhancer();
 		e.setSuperclass(clazz);
-		e.setCallback(new ProxiedModel<E>(model));
+		e.setCallback(new ProxiedModel<>(model));
 		@SuppressWarnings("unchecked")
 		E bean = (E) e.create();
 		return bean;

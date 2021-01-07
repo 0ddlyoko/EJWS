@@ -1,11 +1,12 @@
 package me.oddlyoko.ejws.example1;
 
-import java.sql.SQLException;
-
 import me.oddlyoko.ejws.EJWS;
 import me.oddlyoko.ejws.database.Connection;
 import me.oddlyoko.ejws.example1.model.Person;
+import me.oddlyoko.ejws.example1.model.Server;
 import me.oddlyoko.ejws.exceptions.ModelLoadException;
+
+import java.sql.SQLException;
 
 public class Example {
 
@@ -13,11 +14,12 @@ public class Example {
 		EJWS ejws = new EJWS();
 		// Load classes
 		ejws.getModelManager().loadModel(Person.class);
+		ejws.getModelManager().loadModel(Server.class);
 
 		Person p = ejws.getModelManager().newInstance(Person.class);
 		p.setName("luc");
-		System.out.println(String.format("Age: %d", p.getAge()));
-		System.out.println(String.format("Old: %b", p.isOld()));
+		System.out.printf("Age: %d%n", p.getAge());
+		System.out.printf("Old: %b%n", p.isOld());
 
 		try {
 			ejws.getDatabaseManager().loadModels();

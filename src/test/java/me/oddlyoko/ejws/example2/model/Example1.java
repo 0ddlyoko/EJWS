@@ -1,15 +1,13 @@
 package me.oddlyoko.ejws.example2.model;
 
-import lombok.Getter;
-import lombok.Setter;
 import me.oddlyoko.ejws.model.Fields;
 import me.oddlyoko.ejws.model.Models;
 
-@Getter
-@Models.Model(stored = true)
+@Models.Model(stored = true, primary = { "id" })
 public class Example1 {
 	@Fields.Field
-	@Setter
+	private long id;
+	@Fields.Field
 	private int a;
 	@Fields.Field(compute = "computeB")
 	private int b;
@@ -59,5 +57,45 @@ public class Example1 {
 	@Models.Require({ "e", "a" })
 	public void computeH() {
 		h = e + a;
+	}
+
+	public long getId() {
+		return id;
+	}
+
+	public int getA() {
+		return a;
+	}
+
+	public void setA(int a) {
+		this.a = a;
+	}
+
+	public int getB() {
+		return b;
+	}
+
+	public int getC() {
+		return c;
+	}
+
+	public int getD() {
+		return d;
+	}
+
+	public int getE() {
+		return e;
+	}
+
+	public int getF() {
+		return f;
+	}
+
+	public int getG() {
+		return g;
+	}
+
+	public int getH() {
+		return h;
 	}
 }

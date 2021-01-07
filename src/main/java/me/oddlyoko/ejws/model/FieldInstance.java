@@ -1,27 +1,26 @@
 package me.oddlyoko.ejws.model;
 
+import me.oddlyoko.ejws.exceptions.ComputeException;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
-
-import lombok.Getter;
-import me.oddlyoko.ejws.exceptions.ComputeException;
 
 /**
  * Represent caracteristics of a Field for a Models.<br />
  * This class is linked to an instance of a Models.
  */
-@Getter
 public class FieldInstance {
-	private ProxiedModel<?> model;
-	private Fields field;
+	private final ProxiedModel<?> model;
+	private final Fields field;
 	// Hash containing an hash of the value of specific field.
 	// This is used to check if a field has been updated or not without having a
 	// reference to the specific value
 	// The key is the id of the field
 	// The value is the hash of the variable
-	private HashMap<FieldInstance, Integer> hash;
+	private final Map<FieldInstance, Integer> hash;
 
 	public FieldInstance(ProxiedModel<?> model, Fields field) {
 		this.model = model;
@@ -59,7 +58,7 @@ public class FieldInstance {
 		for (Entry<FieldInstance, Integer> h : this.hash.entrySet()) {
 			h.getKey().computeIfNeeded(instance);
 			// Get the hash
-			Object o = null;
+			Object o;
 			try {
 				o = h.getKey().getField().getField().get(instance);
 			} catch (IllegalArgumentException | IllegalAccessException ex) {
@@ -87,5 +86,17 @@ public class FieldInstance {
 
 	public void setHash(FieldInstance fi, Integer hash) {
 		this.hash.put(fi, hash);
+	}
+
+	public ProxiedModel<?> getModel() {
+		return model;
+	}
+
+	public Fields getField() {
+		return field;
+	}
+
+	public Map<FieldInstance, Integer> getHash() {
+		return hash;
 	}
 }

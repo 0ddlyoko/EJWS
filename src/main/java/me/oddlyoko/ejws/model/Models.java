@@ -4,45 +4,71 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
-import lombok.Getter;
-
-@Getter
 public class Models<E> {
-	private Class<E> clazz;
-	private String id;
-	private boolean stored;
-	private List<Fields> fields;
+	private final Class<E> clazz;
+	private final String id;
+	private final boolean stored;
+	private final Map<String, Fields> fields;
+	private final Set<String> primary;
 
-	protected Models(Class<E> clazz, String id, boolean stored, List<Fields> fields) {
+	protected Models(Class<E> clazz, String id, boolean stored, Map<String, Fields> fields, Set<String> primary) {
 		this.clazz = clazz;
 		this.id = id;
 		this.stored = stored;
 		this.fields = fields;
+		this.primary = primary;
 	}
 
 	public Optional<Fields> getField(String id) {
-		for (Fields f : this.fields)
-			if (f.getId().equals(id))
-				return Optional.of(f);
-		return Optional.empty();
+		return Optional.ofNullable(this.fields.get(id));
+	}
+
+	public Class<E> getClazz() {
+		return clazz;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public boolean isStored() {
+		return stored;
+	}
+
+	public Map<String, Fields> getFields() {
+		return fields;
+	}
+
+	public Set<String> getPrimary() {
+		return primary;
+	}
+
+	public boolean isPrimary(String key) {
+		return primary.contains(key);
 	}
 
 	@Target({ ElementType.TYPE })
 	@Retention(RetentionPolicy.RUNTIME)
-	public static @interface Model {
+	public @interface Model {
 		String value() default "";
 
 		String id() default "";
 
 		boolean stored() default true;
+
+		/**
+		 * @return Primary Keys of this model
+		 */
+		String[] primary();
 	}
 
 	@Target({ ElementType.METHOD })
 	@Retention(RetentionPolicy.RUNTIME)
-	public static @interface Require {
+	public @interface Require {
 		String[] value() default { "" };
 	}
 }

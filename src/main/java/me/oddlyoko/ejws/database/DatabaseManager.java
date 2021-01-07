@@ -1,6 +1,7 @@
 package me.oddlyoko.ejws.database;
 
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,28 +11,113 @@ import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import lombok.Getter;
 import me.oddlyoko.ejws.EJWS;
 import me.oddlyoko.ejws.model.Fields;
 import me.oddlyoko.ejws.model.Models;
 
+/**
+ * Manage the Database, create model tables, create, retrieve, edit & delete data (CRUD)
+ * <br />
+ * Once calling {@link #loadDatabase()}, load the database, create required tables and alter old ones.
+ */
 public class DatabaseManager {
 	private static final Logger LOG = LogManager.getLogger(DatabaseManager.class);
 
-	@Getter
-	private DatabaseModel databaseModel;
+	private final DatabaseModel databaseModel;
 	/**
 	 * Contains information about a table
 	 */
-	private Map<String, TableInformation> tableInformations;
+	private final Map<String, TableInformation> tableInformation;
 
-	public DatabaseManager(String host, int port, String username, String password, String database) {
-		this.databaseModel = new DatabaseModel(host, port, username, password, database);
-		this.tableInformations = new HashMap<>();
+	public DatabaseManager(String host, int port, String username, String password, String database, String schema) {
+		this.databaseModel = new DatabaseModel(host, port, username, password, database, schema);
+		this.tableInformation = new HashMap<>();
 	}
 
 	public Connection createConnection() throws SQLException {
-		return new Connection(this.databaseModel.getConnection());
+		return new Connection(this.databaseModel.getConnection(), this.databaseModel.getSchema());
+	}
+
+	/**
+	 * Load the database by:
+	 * <ol>
+	 * <li>Creating tables of all models if it doesn't exist with correct columns</li>
+	 * <li>If table exists, check if table should be altered (add / remove / edit columns)</li>
+	 * <li>Create / Delete Primary Keys</li>
+	 * <li>Create / Delete Foreign Keys</li>
+	 * </ol>
+	 * 
+	 * @param connection The connection
+	 * @throws SQLException If exception occurs
+	 */
+	public void loadDatabase(Connection connection) throws SQLException {
+		this.loadDatabase(connection, EJWS.getInstance().getModelManager().getModels().values());
+	}
+
+	/**
+	 * Load the database by:
+	 * <ol>
+	 * <li>Creating tables of all given models if it doesn't exist with correct columns</li>
+	 * <li>If table exists, check if table should be altered (add / remove / edit columns)</li>
+	 * <li>Create / Delete Primary Keys</li>
+	 * <li>Create / Delete Foreign Keys</li>
+	 * </ol>
+	 * 
+	 * @param connection The connection
+	 * @param models A collection of models
+	 * @throws SQLException If exception occurs
+	 */
+	public void loadDatabase(Connection connection, Collection<Models<?>> models) throws SQLException {
+		// First: Create tables that aren't created
+		try {
+			this.createOrEditTables(connection, models);
+			connection.commit();
+		} catch (Exception ex) {
+			// Rollback
+			try {
+				connection.rollback();
+			} catch (SQLException ex2) {
+				LOG.error("Rollback error:", ex2);
+			}
+			throw new SQLException("An error has occured while loading database", ex);
+		}
+	}
+
+	/**
+	 * Create tables or edit columns for specific models<br />
+	 * Do not create / edit Primary / Foreign Keys
+	 * 
+	 * @param connection The connection
+	 * @param models A collection of models
+	 * @throws SQLException If exception occurs
+	 */
+	private void createOrEditTables(Connection connection, Collection<Models<?>> models) throws SQLException {
+		for (Models<?> model : models)
+			this.createOrEditTable(connection, model);
+	}
+
+	/**
+	 * Create table or edit columns for specific model<br />
+	 * Do not create / edit Primary / Foreign Keys
+	 * 
+	 * @param connection The connection
+	 * @param model The model
+	 * @throws SQLException If exception occurs
+	 */
+	private void createOrEditTable(Connection connection, Models<?> model) throws SQLException {
+		// First: retrieve data for specific model
+		TableInformation tableInformation = DatabaseUtil.getTableInformations(model);
+		// Then check if table exist
+		String tableName = model.getId();
+		List<Fields> fields = model.getFields().values().stream().filter(Fields::isStored).collect(Collectors.toList());
+
+		if (!connection.tableExists(tableName)) {
+			// Create the table
+			connection.createTable(tableName, fields, false);
+		} else {
+			// Edit table (Add / Delete / Alter columns)
+			connection.editTable(tableName, fields, false);
+		}
 	}
 
 	public void loadModels() throws SQLException {
@@ -108,10 +194,14 @@ public class DatabaseManager {
 	}
 
 	public Optional<TableInformation> getTableInformation(String tableName) {
-		return Optional.ofNullable(this.tableInformations.get(tableName));
+		return Optional.ofNullable(this.tableInformation.get(tableName));
 	}
 
 	public void saveTableInformation(String tableName, TableInformation tableInformation) {
-		this.tableInformations.put(tableName, tableInformation);
+		this.tableInformation.put(tableName, tableInformation);
+	}
+
+	public DatabaseModel getDatabaseModel() {
+		return databaseModel;
 	}
 }

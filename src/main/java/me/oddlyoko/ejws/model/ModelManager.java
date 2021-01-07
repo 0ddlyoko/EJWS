@@ -1,21 +1,21 @@
 package me.oddlyoko.ejws.model;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import lombok.Getter;
 import me.oddlyoko.ejws.exceptions.ModelLoadException;
 
 public class ModelManager {
 	private static final Logger LOG = LogManager.getLogger(ModelManager.class);
 
-	@Getter
-	private HashMap<String, Models<?>> models;
+	private final Map<String, Models<?>> models;
 
 	public ModelManager() {
 		this.models = new HashMap<>();
@@ -71,26 +71,39 @@ public class ModelManager {
 	public <E> void loadModel(Class<E> modelClass) throws ModelLoadException {
 		Models.Model mod = modelClass.getAnnotation(Models.Model.class);
 		if (mod != null) {
-			// Load the class
-			String id = mod.value();
-			if (id == null || "".equalsIgnoreCase(id.trim())) {
-				id = mod.id();
-				if (id == null || "".equalsIgnoreCase(id.trim())) {
-					// Still null, use the id of the class
-					id = modelClass.getSimpleName();
+			try {
+				// Load the class
+				String id = mod.value();
+				if ("".equalsIgnoreCase(id.trim())) {
+					id = mod.id();
+					if ("".equalsIgnoreCase(id.trim())) {
+						// Still null, use the id of the class
+						id = modelClass.getSimpleName();
+					}
 				}
+				id = id.toLowerCase();
+				LOG.info("Loading {}", id);
+				boolean stored = mod.stored();
+				// Load fields
+				Map<String, Fields> fields = this.loadFields(modelClass);
+				String[] primary = mod.primary();
+				if (primary.length == 0)
+					throw new ModelLoadException("Model should have at least one primary key");
+				Set<String> primarySet = Arrays.stream(primary).filter(p -> fields.get(p) != null)
+						.collect(Collectors.toSet());
+				if (primarySet.size() != primary.length) {
+					throw new ModelLoadException("Invalid Primary Key, it should contains non-repeat fields variables");
+				}
+				Models<E> model = new Models<>(modelClass, id, stored, fields, primarySet);
+				this.models.put(id, model);
+			} catch (ModelLoadException ex) {
+				throw new ModelLoadException(String.format("Cannot load model at %s", modelClass.getName()), ex);
 			}
-			id = id.toLowerCase();
-			boolean stored = mod.stored();
-			// Load fields
-			List<Fields> fields = this.loadFields(modelClass);
-			Models<E> model = new Models<E>(modelClass, id, stored, fields);
-			this.models.put(id, model);
 		}
 	}
 
-	private List<Fields> loadFields(Class<?> modelClass) throws ModelLoadException {
-		List<Fields> lst = new ArrayList<>();
+	private Map<String, Fields> loadFields(Class<?> modelClass) throws ModelLoadException {
+		Map<String, Fields> lst = new HashMap<>();
 		for (java.lang.reflect.Field f : modelClass.getDeclaredFields()) {
 			// Check if an annotation exists
 			// String
@@ -103,44 +116,47 @@ public class ModelManager {
 					f.setAccessible(true);
 					field = loadField(modelClass, f, annotation);
 				} catch (NoSuchMethodException ex) {
-					throw new ModelLoadException(
-							String.format("Cannot load field %s of class %s", f.getName(), modelClass.getSimpleName()),
-							ex);
+					throw new ModelLoadException(String.format("Cannot load field %s:", f.getName()), ex);
 				}
-				lst.add(field);
+				lst.put(field.getId(), field);
 			}
 		}
 		return lst;
 	}
 
 	private Fields loadField(Class<?> modelClass, java.lang.reflect.Field field, Fields.Field annotation)
-			throws NoSuchMethodException {
+			throws NoSuchMethodException, ModelLoadException {
 		// Id
 		String id = annotation.id();
-		if (id == null || "".equalsIgnoreCase(id.trim())) {
+		if ("".equalsIgnoreCase(id.trim())) {
 			id = annotation.value();
-			if (id == null || "".equalsIgnoreCase(id.trim())) {
+			if ("".equalsIgnoreCase(id.trim())) {
 				// Still null, use the name of the variable
 				id = field.getName();
 			}
 		}
 		// Name
 		String name = annotation.name();
-		if (name == null || "".equalsIgnoreCase(name.trim())) {
+		if ("".equalsIgnoreCase(name.trim())) {
 			name = annotation.value();
-			if (name == null || "".equalsIgnoreCase(name.trim())) {
+			if ("".equalsIgnoreCase(name.trim())) {
 				// Still null, use the id
 				name = id;
 			}
 		}
-		Fields.Type type = getFieldType(field);
+		Fields.Type type = Fields.Type.fromClass(modelClass);
+		if (type == null) {
+			// Unknown type
+			throw new ModelLoadException("Type not supported !");
+		}
 		boolean stored = annotation.stored();
 		String compute = annotation.compute();
 		boolean blank = annotation.blank();
 		boolean empty = annotation.empty();
+		boolean autoincrement = annotation.autoincrement();
 		// Check if this method exists
 		ComputeMethod computeMethod = null;
-		if (compute != null && !"".equalsIgnoreCase(compute.trim())) {
+		if (!"".equalsIgnoreCase(compute.trim())) {
 			try {
 				Method method = modelClass.getMethod(compute);
 				String[] required = null;
@@ -149,19 +165,14 @@ public class ModelManager {
 					required = require.value();
 				computeMethod = new ComputeMethod(method, required);
 			} catch (NoSuchMethodException | SecurityException e) {
-				throw new NoSuchMethodException(
-						String.format("Method %s not found for computed value of %s", compute, name));
+				throw new ModelLoadException(
+						String.format("Method %s not found", compute));
 			}
 		}
-		return new Fields(type, id, name, stored, computeMethod, blank, empty, field);
+		return new Fields(type, id, name, stored, computeMethod, blank, empty, autoincrement, field);
 	}
 
-	private Fields.Type getFieldType(java.lang.reflect.Field f) {
-		Class<?> clazz = f.getType();
-		if (clazz.equals(Integer.class) || clazz.equals(int.class))
-			return Fields.Type.INTEGER;
-		else if (clazz.equals(Boolean.class) || clazz.equals(boolean.class))
-			return Fields.Type.BOOLEAN;
-		return Fields.Type.STRING;
+	public Map<String, Models<?>> getModels() {
+		return models;
 	}
 }

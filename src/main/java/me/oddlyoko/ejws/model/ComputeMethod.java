@@ -2,15 +2,20 @@ package me.oddlyoko.ejws.model;
 
 import java.lang.reflect.Method;
 
-import lombok.Getter;
-
-@Getter
 public class ComputeMethod {
-	private Method computeMethod;
-	private String[] required;
+	private final Method computeMethod;
+	private final String[] required;
 
 	public ComputeMethod(Method computeMethod, String[] required) {
 		this.computeMethod = computeMethod;
 		this.required = required;
+	}
+
+	public Method getComputeMethod() {
+		return computeMethod;
+	}
+
+	public String[] getRequired() {
+		return required;
 	}
 }

@@ -7,27 +7,23 @@ import java.lang.annotation.Target;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.Types;
 
-import lombok.Getter;
-import lombok.Setter;
-
 /**
  * Represent caracteristics of a Field for a Models.
  */
-@Getter
 public class Fields {
-	private java.lang.reflect.Field field;
-	private Type type;
-	private String id;
-	private String name;
-	private boolean stored;
-	private ComputeMethod compute;
-	@Setter
-	private boolean computeWhenNeeded;
-	private boolean blank;
-	private boolean empty;
+	private final java.lang.reflect.Field field;
+	private final Type type;
+	private final String id;
+	private final String name;
+	private final boolean stored;
+	private final ComputeMethod compute;
+	private final boolean blank;
+	private final boolean empty;
+	private final boolean autoincrement;
+	private final boolean unique;
 
-	protected Fields(Type type, String id, String name, boolean stored, ComputeMethod compute, boolean blank,
-			boolean empty, java.lang.reflect.Field field) {
+	public Fields(Type type, String id, String name, boolean stored, ComputeMethod compute, boolean blank,
+			boolean empty, boolean autoincrement, boolean unique, java.lang.reflect.Field field) {
 		this.type = type;
 		this.id = id;
 		this.name = name;
@@ -36,7 +32,8 @@ public class Fields {
 		this.blank = blank;
 		this.empty = empty;
 		this.field = field;
-		this.computeWhenNeeded = false;
+		this.autoincrement = autoincrement;
+		this.unique = unique;
 	}
 
 	/**
@@ -57,9 +54,49 @@ public class Fields {
 		return compute != null;
 	}
 
+	public java.lang.reflect.Field getField() {
+		return field;
+	}
+
+	public Type getType() {
+		return type;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public boolean isStored() {
+		return stored;
+	}
+
+	public ComputeMethod getCompute() {
+		return compute;
+	}
+
+	public boolean isBlank() {
+		return blank;
+	}
+
+	public boolean isEmpty() {
+		return empty;
+	}
+
+	public boolean isAutoincrement() {
+		return autoincrement;
+	}
+
+	public boolean isUnique() {
+		return unique;
+	}
+
 	@Target({ ElementType.FIELD })
 	@Retention(RetentionPolicy.RUNTIME)
-	public static @interface Field {
+	public @interface Field {
 		String id() default "";
 
 		String value() default "";
@@ -79,34 +116,66 @@ public class Fields {
 		 * Could the field be empty in database ?
 		 */
 		boolean empty() default false;
+
+		/**
+		 * Should this field autoincrement if type is INTEGER ?
+		 */
+		boolean autoincrement() default false;
+
+		/**
+		 * Is this field unique ? (Only check for unique constraint in Database)
+		 */
+		boolean unique() default false;
 	}
 
-	public static enum Type {
-		STRING(Types.BOOLEAN, "VARCHAR"),
-		INTEGER(Types.INTEGER, "INT"),
-		BOOLEAN(Types.VARCHAR, "BOOLEAN");
+	public enum PrimaryType {
+		AUTOINCREMENT(),
+		MANUAL();
+	}
 
-		private int sqlType;
-		private String sqlKeyword;
+	public enum Type {
+		STRING(String.class),
+		INTEGER(Integer.class, int.class),
+		BOOLEAN(Boolean.class, boolean.class);
 
-		private Type(int sqlType, String sqlKeyword) {
-			this.sqlType = sqlType;
-			this.sqlKeyword = sqlKeyword;
+		private final Class<?>[] classes;
+
+		Type(Class<?>... classes) {
+			this.classes = classes;
 		}
 
-		public int getSqlType() {
-			return sqlType;
+		public Class<?>[] getClasses() {
+			return classes;
 		}
 
-		public String getSqlKeyword() {
-			return sqlKeyword;
+		public int toSqlType() {
+			switch (this) {
+			case INTEGER:
+				return Types.INTEGER;
+			case BOOLEAN:
+				return Types.BOOLEAN;
+			default:
+				return Types.VARCHAR;
+			}
 		}
 
 		public static Type fromSqlType(int sqlType) {
+			switch (sqlType) {
+			case Types.INTEGER:
+				return INTEGER;
+			case Types.BOOLEAN:
+				return BOOLEAN;
+			default:
+				return STRING;
+			}
+		}
+
+		public static Type fromClass(Class<?> clazz) {
 			for (Type t : values())
-				if (t.sqlType == sqlType)
-					return t;
-			return STRING;
+				for (Class<?> claz : t.getClasses())
+					if (clazz == claz)
+						return t;
+			return null;
 		}
 	}
 }

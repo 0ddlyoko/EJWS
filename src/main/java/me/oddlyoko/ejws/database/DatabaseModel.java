@@ -5,25 +5,21 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
-import lombok.Getter;
-
 public class DatabaseModel {
-	@Getter
-	private String host;
-	@Getter
-	private int port;
-	@Getter
-	private String username;
-	private String password;
-	@Getter
-	private String database;
+	private final String host;
+	private final int port;
+	private final String username;
+	private final String password;
+	private final String database;
+	private final String schema;
 
-	public DatabaseModel(String host, int port, String username, String password, String database) {
+	public DatabaseModel(String host, int port, String username, String password, String database, String schema) {
 		this.host = host;
 		this.port = port;
 		this.username = username;
 		this.password = password;
 		this.database = database;
+		this.schema = schema;
 		loadDatabase();
 	}
 
@@ -44,5 +40,25 @@ public class DatabaseModel {
 		Connection c = DriverManager.getConnection(url, info);
 		c.setAutoCommit(false);
 		return c;
+	}
+
+	public String getHost() {
+		return host;
+	}
+
+	public int getPort() {
+		return port;
+	}
+
+	public String getUsername() {
+		return username;
+	}
+
+	public String getDatabase() {
+		return database;
+	}
+
+	public String getSchema() {
+		return schema;
 	}
 }

@@ -95,13 +95,6 @@
 			<version>${disruptor.version}</version>
 		</dependency>
 
-		<!-- Lombok -->
-		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-			<version>1.18.16</version>
-		</dependency>
-
 		<!--Cglib -->
 		<dependency>
 			<groupId>cglib</groupId>
