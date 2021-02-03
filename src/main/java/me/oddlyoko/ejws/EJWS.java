@@ -1,10 +1,21 @@
 package me.oddlyoko.ejws;
 
-public class EJWS {
+import me.oddlyoko.ejws.event.EventManager;
 
-    private static final String TEST = "Test";
+public final class EJWS {
+    private static final EJWS ejws = new EJWS();
 
-    public static void main(String[] args) {
-        System.out.println(TEST);
+    private final EventManager eventManager;
+
+    private EJWS() {
+        eventManager = new EventManager();
+    }
+
+    public EventManager getEventManager() {
+        return eventManager;
+    }
+
+    public static EJWS get() {
+        return ejws;
     }
 }
