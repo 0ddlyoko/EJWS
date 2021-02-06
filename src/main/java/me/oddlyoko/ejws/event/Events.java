@@ -1,6 +1,7 @@
 package me.oddlyoko.ejws.event;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -21,26 +22,29 @@ public final class Events {
      * @param clazz        The given event class
      * @param eventHandler The action to execute
      * @param <E>          The generic Event class
-     * @return The id of the created listener. Used to unregister it
      */
-    public static <E extends Event> long subscribe(Class<E> clazz, EventHandler<E> eventHandler) {
+    public static <E extends Event> void subscribe(Class<E> clazz, EventHandler<E> eventHandler) {
+        subscribe(clazz, Priority.NORMAL, eventHandler);
+    }
+
+    public static <E extends Event> void subscribe(Class<E> clazz, Priority priority, EventHandler<E> eventHandler) {
         HandlerList<E> handlerList = getHandlerList(clazz).orElseGet(() -> {
-            HandlerList<E> hl = new HandlerList<>(clazz);
+            HandlerList<E> hl = new HandlerList<>();
             events.put(clazz, hl);
             return hl;
         });
-        return handlerList.subscribe(eventHandler);
+        handlerList.subscribe(priority, eventHandler);
     }
 
     /**
-     * Unsubscribe specific id
+     * Unsubscribe specific EventHandler
      *
-     * @param id The id of the listener
+     * @param clazz        The event class
+     * @param eventHandler The action to unsubscribe
+     * @param <E>          The generic Event class
      */
-    public static void unsubscribe(long id) {
-        for (HandlerList<?> handlerList : events.values())
-            if (handlerList.unsubscribe(id))
-                return;
+    public static <E extends Event> void unsubscribe(Class<E> clazz, EventHandler<E> eventHandler) {
+        getHandlerList(clazz).ifPresent(handlerList -> handlerList.unsubscribe(eventHandler));
     }
 
     /**
