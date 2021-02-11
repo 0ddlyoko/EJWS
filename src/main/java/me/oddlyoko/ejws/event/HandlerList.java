@@ -6,6 +6,7 @@ import java.util.List;
 
 /**
  * List of {@link EventHandler} that will be called when a specific {@link Event} is published
+ *
  * @param <E> The event
  */
 public class HandlerList<E extends Event> {

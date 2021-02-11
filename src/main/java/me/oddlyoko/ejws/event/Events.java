@@ -11,7 +11,8 @@ import java.util.Optional;
 public final class Events {
     private static final Map<Class<? extends Event>, HandlerList<? extends Event>> events = new HashMap<>();
 
-    private Events() {}
+    private Events() {
+    }
 
     /**
      * Retrieves the {@link HandlerList} associated to the specific event

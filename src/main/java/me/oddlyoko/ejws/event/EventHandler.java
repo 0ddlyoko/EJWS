@@ -2,6 +2,7 @@ package me.oddlyoko.ejws.event;
 
 /**
  * Execute an action when specific event is published
+ *
  * @param <E>
  */
 @FunctionalInterface

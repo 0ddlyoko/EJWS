@@ -1,7 +1,7 @@
 package me.oddlyoko.ejws.event;
 
-import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -51,8 +51,8 @@ public class TestEvents {
     @Test
     @DisplayName("Test Subscribe Different Event")
     void testSubscribeDifferentEvent(@Mock EventHandler<JoinEvent> joinEvent1EventHandler,
-                                    @Mock EventHandler<JoinEvent> joinEvent2EventHandler,
-                                    @Mock EventHandler<QuitEvent> quitEventEventHandler) {
+                                     @Mock EventHandler<JoinEvent> joinEvent2EventHandler,
+                                     @Mock EventHandler<QuitEvent> quitEventEventHandler) {
         Events.subscribe(JoinEvent.class, joinEvent1EventHandler);
         Events.subscribe(JoinEvent.class, joinEvent2EventHandler);
         Events.subscribe(QuitEvent.class, quitEventEventHandler);
