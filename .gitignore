@@ -3,4 +3,7 @@
 .classpath
 .factorypath
 .project
-/.settings/
+/.settings
+/.vscode
+/.idea
+*.iml

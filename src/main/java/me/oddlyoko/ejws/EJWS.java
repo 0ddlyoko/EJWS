@@ -1,10 +1,12 @@
 package me.oddlyoko.ejws;
 
-public class EJWS {
+public final class EJWS {
+    private static final EJWS ejws = new EJWS();
 
-    private static final String TEST = "Test";
+    private EJWS() {
+    }
 
-    public static void main(String[] args) {
-        System.out.println(TEST);
+    public static EJWS get() {
+        return ejws;
     }
 }
