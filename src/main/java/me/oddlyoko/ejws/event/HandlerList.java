@@ -1,8 +1,8 @@
 package me.oddlyoko.ejws.event;
 
-import java.util.ArrayList;
 import java.util.EnumMap;
-import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  * List of {@link EventHandler} that will be called when a specific {@link Event} is published
@@ -10,12 +10,12 @@ import java.util.List;
  * @param <E> The event
  */
 public class HandlerList<E extends Event> {
-    private final EnumMap<Priority, List<EventHandler<E>>> listeners;
+    private final EnumMap<Priority, Set<EventHandler<E>>> listeners;
 
     public HandlerList() {
         this.listeners = new EnumMap<>(Priority.class);
         for (Priority p : Priority.values())
-            listeners.put(p, new ArrayList<>());
+            listeners.put(p, new LinkedHashSet<>());
     }
 
     /**
@@ -25,9 +25,7 @@ public class HandlerList<E extends Event> {
      * @param eventHandler The action to execute
      */
     public void subscribe(Priority priority, EventHandler<E> eventHandler) {
-        List<EventHandler<E>> eventHandlers = listeners.get(priority);
-        if (eventHandlers.contains(eventHandler))
-            throw new IllegalArgumentException("Given EventHandler is already listening !");
+        Set<EventHandler<E>> eventHandlers = listeners.get(priority);
         eventHandlers.add(eventHandler);
     }
 
@@ -44,7 +42,7 @@ public class HandlerList<E extends Event> {
      * Unsubscribe all registered event
      */
     public void unsubscribeAll() {
-        listeners.values().forEach(List::clear);
+        listeners.values().forEach(Set::clear);
     }
 
     /**

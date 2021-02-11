@@ -28,7 +28,9 @@ public final class Events {
     }
 
     /**
-     * Execute an action when given event is performed
+     * Execute an action when given event is performed<br />
+     * Subscribe the action as default priority of {@link Priority#NORMAL}<br />
+     * Same as <pre>Events.subscribe(clazz, Priority.NORMAL, eventHandler);</pre>
      *
      * @param clazz        The given event class
      * @param eventHandler The action to execute

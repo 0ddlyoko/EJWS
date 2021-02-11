@@ -1,6 +1,6 @@
 package me.oddlyoko.ejws.event;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.*;
 
 import org.junit.jupiter.api.AfterEach;
@@ -68,8 +68,14 @@ public class TestEvents {
     @Test
     @DisplayName("Test Register Same Event")
     void testRegisterSameEvent(@Mock EventHandler<JoinEvent> joinEvent1EventHandler) {
-        assertDoesNotThrow(() -> Events.subscribe(JoinEvent.class, joinEvent1EventHandler));
-        assertThrows(IllegalArgumentException.class, () -> Events.subscribe(JoinEvent.class, joinEvent1EventHandler));
+        Events.subscribe(JoinEvent.class, joinEvent1EventHandler);
+        Events.subscribe(JoinEvent.class, joinEvent1EventHandler);
+
+        JoinEvent joinEvent = new JoinEvent();
+        Events.publish(joinEvent);
+
+        // Check if it has been called one time only
+        verify(joinEvent1EventHandler, times(1)).execute(any());
     }
 
     @Test
