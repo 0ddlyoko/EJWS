@@ -46,7 +46,6 @@ public class HandlerList<E extends Event> {
         listeners.values().forEach(List::clear);
     }
 
-
     /**
      * Run an event
      *
