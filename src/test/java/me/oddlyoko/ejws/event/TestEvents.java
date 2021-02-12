@@ -3,9 +3,7 @@ package me.oddlyoko.ejws.event;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.*;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
@@ -16,6 +14,18 @@ import me.oddlyoko.ejws.event.src.QuitEvent;
 
 @ExtendWith(MockitoExtension.class)
 public class TestEvents {
+
+    @BeforeAll
+    static void initializeEvents() {
+        Events.registerEventModule(JoinEvent.class, null);
+        Events.registerEventModule(QuitEvent.class, null);
+    }
+
+    @AfterAll
+    static void deInitializeEvents() {
+        Events.unregisterEventModule(JoinEvent.class);
+        Events.unregisterEventModule(QuitEvent.class);
+    }
 
     @AfterEach
     void clearEvents() {

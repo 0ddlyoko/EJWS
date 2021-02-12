@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import me.oddlyoko.ejws.module.TheModule;
+
 /**
  * The Event Manager class<br />
  * Use this class to subscribe / unsubscribe to an event or to publish an event
@@ -22,9 +24,18 @@ public final class Events {
      * @return The {@link Optional} {@link HandlerList} associated with the given event class
      */
     @SuppressWarnings("unchecked")
-    public static <E extends Event> Optional<HandlerList<E>> getHandlerList(Class<E> clazz) {
-        Optional<?> op = Optional.ofNullable(events.get(clazz));
-        return (Optional<HandlerList<E>>) op;
+    public static <E extends Event> HandlerList<E> getHandlerList(Class<E> clazz) {
+        return (HandlerList<E>) events.get(clazz);
+    }
+
+    public static <E extends Event> void registerEventModule(Class<E> eventClass, TheModule<?> theModule) {
+        HandlerList<E> handlerList = new HandlerList<>(theModule);
+        events.put(eventClass, handlerList);
+    }
+
+    public static <E extends Event> void unregisterEventModule(Class<E> eventClass) {
+        // We just have to remove the specific handler from the Map
+        events.remove(eventClass);
     }
 
     /**
@@ -50,12 +61,7 @@ public final class Events {
      * @see Priority
      */
     public static <E extends Event> void subscribe(Class<E> clazz, Priority priority, EventHandler<E> eventHandler) {
-        HandlerList<E> handlerList = getHandlerList(clazz).orElseGet(() -> {
-            HandlerList<E> hl = new HandlerList<>();
-            events.put(clazz, hl);
-            return hl;
-        });
-        handlerList.subscribe(priority, eventHandler);
+        getHandlerList(clazz).subscribe(priority, eventHandler);
     }
 
     /**
@@ -66,7 +72,7 @@ public final class Events {
      * @param <E>          The generic Event class
      */
     public static <E extends Event> void unsubscribe(Class<E> clazz, EventHandler<E> eventHandler) {
-        getHandlerList(clazz).ifPresent(handlerList -> handlerList.unsubscribe(eventHandler));
+        getHandlerList(clazz).unsubscribe(eventHandler);
     }
 
     /**
@@ -76,7 +82,7 @@ public final class Events {
      * @param <E>   The generic Event class
      */
     public static <E extends Event> void unsubscribe(Class<E> clazz) {
-        getHandlerList(clazz).ifPresent(HandlerList::unsubscribeAll);
+        getHandlerList(clazz).unsubscribeAll();
     }
 
     /**
@@ -88,6 +94,9 @@ public final class Events {
     @SuppressWarnings("unchecked")
     public static <E extends Event> void publish(E event) {
         Class<E> clazz = (Class<E>) event.getClass();
-        getHandlerList(clazz).ifPresent(handlerList -> handlerList.publish(event));
+        HandlerList<E> handlerList = getHandlerList(clazz);
+        if (handlerList == null)
+            throw new IllegalStateException(String.format("Trying to publish an event that has never been initialized ! (%s)", event.getName()));
+        getHandlerList(clazz).publish(event);
     }
 }

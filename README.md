@@ -10,3 +10,4 @@ Extended Java Web Server
 
 - [JUnit 5](https://junit.org/junit5/)
 - [Mockito](https://site.mockito.org/)
+- [GSON](https://github.com/google/gson)

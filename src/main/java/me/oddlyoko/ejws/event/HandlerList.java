@@ -4,15 +4,23 @@ import java.util.EnumMap;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import me.oddlyoko.ejws.module.TheModule;
+
 /**
  * List of {@link EventHandler} that will be called when a specific {@link Event} is published
  *
  * @param <E> The event
  */
 public class HandlerList<E extends Event> {
+    private static final Logger LOGGER = LogManager.getLogger(HandlerList.class);
+    private final TheModule<?> theModule;
     private final EnumMap<Priority, Set<EventHandler<E>>> listeners;
 
-    public HandlerList() {
+    public HandlerList(TheModule<?> theModule) {
+        this.theModule = theModule;
         this.listeners = new EnumMap<>(Priority.class);
         for (Priority p : Priority.values())
             listeners.put(p, new LinkedHashSet<>());
@@ -51,6 +59,16 @@ public class HandlerList<E extends Event> {
      * @param event The event to run
      */
     public void publish(E event) {
-        listeners.values().forEach(eventHandlers -> eventHandlers.forEach(eventHandler -> eventHandler.execute(event)));
+        listeners.values().forEach(eventHandlers -> eventHandlers.forEach(eventHandler -> {
+            try {
+                eventHandler.execute(event);
+            } catch (Exception ex) {
+                LOGGER.error("", ex);
+            }
+        }));
+    }
+
+    public TheModule<?> getTheModule() {
+        return theModule;
     }
 }
