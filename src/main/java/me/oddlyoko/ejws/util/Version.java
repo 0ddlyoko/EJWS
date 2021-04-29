@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 
 public final class Version implements Comparable<Version>, Cloneable {
     public static final Version V1_0 = of(new int[] { 1 });
-    public static final Version V2_0 = of(new int[] { 1 });
+    public static final Version V2_0 = of(new int[] { 2 });
 
     // 4 - DO NOT EDIT THIS VARIABLE
     public static final int MAX_SIZE = 4;

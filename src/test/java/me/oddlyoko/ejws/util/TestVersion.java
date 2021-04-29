@@ -86,4 +86,38 @@ public class TestVersion {
         assertEquals(1, Version.of("1.2.3.4").compareTo(Version.of("1")));
         assertEquals(-1, Version.of("1.2.3.4").compareTo(Version.of("1.3")));
     }
+
+    @Test
+    @DisplayName("Test equals")
+    void testEquals() {
+        Version version = Version.V1_0;
+        assertEquals(version, version);
+        assertNotEquals(version, null);
+        assertNotEquals(version, "1");
+        assertNotEquals(version, Version.of("1.0.0.1"));
+    }
+
+    @Test
+    @DisplayName("Test HashCode")
+    void testHashCode() {
+        Version version = Version.V1_0;
+        assertEquals(version.hashCode(), version.hashCode());
+    }
+
+    @Test
+    @DisplayName("Test clone()")
+    void testClone() throws CloneNotSupportedException {
+        Version version = Version.V1_0;
+        assertEquals(version.clone(), version);
+    }
+
+    @Test
+    @DisplayName("Test toString()")
+    void testToString() {
+        Version version = Version.V1_0;
+        assertEquals("1.0.0.0", version.toString());
+
+        Version version1 = Version.of("1.2.3.4");
+        assertEquals("1.2.3.4", version1.toString());
+    }
 }
