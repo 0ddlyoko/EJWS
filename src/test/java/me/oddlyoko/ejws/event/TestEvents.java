@@ -144,8 +144,8 @@ public class TestEvents {
                                     @Mock EventHandler<JoinEvent> joinEvent5EventHandler) {
         // Order: 1 - 3 - 5 - 4 - 2
         Events.subscribe(JoinEvent.class, Priority.LOWEST, joinEvent1EventHandler);
-        Events.subscribe(JoinEvent.class, Priority.HIGHER, joinEvent2EventHandler);
-        Events.subscribe(JoinEvent.class, Priority.LOWER, joinEvent3EventHandler);
+        Events.subscribe(JoinEvent.class, Priority.HIGHEST, joinEvent2EventHandler);
+        Events.subscribe(JoinEvent.class, Priority.LOW, joinEvent3EventHandler);
         Events.subscribe(JoinEvent.class, Priority.HIGH, joinEvent4EventHandler);
         Events.subscribe(JoinEvent.class, Priority.NORMAL, joinEvent5EventHandler);
 

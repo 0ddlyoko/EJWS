@@ -63,7 +63,7 @@ public class HandlerList<E extends Event> {
             try {
                 eventHandler.execute(event);
             } catch (Exception ex) {
-                LOGGER.error("", ex);
+                LOGGER.error(ex);
             }
         }));
     }
