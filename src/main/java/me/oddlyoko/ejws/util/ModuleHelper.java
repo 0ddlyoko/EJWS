@@ -73,13 +73,13 @@ public final class ModuleHelper {
     }
 
     /**
-     * Retrieves a {@link Set} of String representing modules present in a specific file
+     * Retrieves a {@link String} representing a module present in a specific file
      *
      * @param file The file where are modules
-     * @return a {@link Set} of String representing modules present in the given file
+     * @return a {@link String} representing a module present in the given file
      */
-    public static Set<String> getModuleNameFromFile(File file) {
-        return getModulesName(ofFile(file));
+    public static String getModuleNameFromFile(File file) {
+        return getModulesName(ofFile(file)).stream().findFirst().orElse(null);
     }
 
     /**
