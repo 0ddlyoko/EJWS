@@ -21,6 +21,24 @@ public class ModuleDescriptor {
     private String licenseUrl;
     private String url;
 
+    public ModuleDescriptor() {
+    }
+
+    public ModuleDescriptor(String name, String description, Version minimumCoreVersion, Version maximumCoreVersion, String title, Version version, String[] authors, String[] dependencies, String bugs, String license, String licenseUrl, String url) {
+        this.name = name;
+        this.description = description;
+        this.minimumCoreVersion = minimumCoreVersion;
+        this.maximumCoreVersion = maximumCoreVersion;
+        this.title = title;
+        this.version = version;
+        this.authors = authors;
+        this.dependencies = dependencies;
+        this.bugs = bugs;
+        this.license = license;
+        this.licenseUrl = licenseUrl;
+        this.url = url;
+    }
+
     public String getName() {
         return name;
     }
@@ -105,8 +123,6 @@ public class ModuleDescriptor {
             maximumCoreVersion = EJWS.get().getVersion();
         if (StringUtil.isBlank(title))
             title = name.substring(0, 1).toUpperCase(Locale.ENGLISH) + name.substring(1);
-        if (version == null)
-            version = Version.V1_0;
         if (authors == null)
             authors = new String[0];
         if (dependencies == null)
