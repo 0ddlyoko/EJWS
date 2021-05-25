@@ -9,7 +9,7 @@ public class TestPriority {
 
     @Test
     @DisplayName("Test getPriority()")
-    void testGetPriority() {
+    public void testGetPriority() {
         assertEquals(1, Priority.LOWEST.getPriority());
         assertEquals(2, Priority.LOW.getPriority());
         assertEquals(3, Priority.NORMAL.getPriority());

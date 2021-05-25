@@ -3,7 +3,7 @@ package me.oddlyoko.ejws.module;
 import java.util.Locale;
 
 import me.oddlyoko.ejws.EJWS;
-import me.oddlyoko.ejws.exceptions.InvalidModuleDescriptorException;
+import me.oddlyoko.ejws.base.exceptions.InvalidModuleDescriptorException;
 import me.oddlyoko.ejws.util.StringUtil;
 import me.oddlyoko.ejws.util.Version;
 

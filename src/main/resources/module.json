@@ -1,7 +1,6 @@
 {
-  "name": "base",
+  "name": "EJWS",
   "description": "Base Module for EJWS",
-  "path": "me.oddlyoko.ejws.BaseModule",
   "minimumCoreVersion": "1.0",
   "maximumCoreVersion": "1.0",
   "title": "EJWS - Base",

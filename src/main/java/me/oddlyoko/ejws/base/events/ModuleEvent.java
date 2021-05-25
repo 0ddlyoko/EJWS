@@ -1,4 +1,4 @@
-package me.oddlyoko.ejws.events;
+package me.oddlyoko.ejws.base.events;
 
 import me.oddlyoko.ejws.event.Event;
 import me.oddlyoko.ejws.module.Module;

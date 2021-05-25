@@ -17,7 +17,7 @@ public class TestHandlerList {
 
     @Test
     @DisplayName("Test HandlerList.subscribe()")
-    void testSubscribe(@Mock EventHandler<JoinEvent> eventHandler) {
+    public void testSubscribe(@Mock EventHandler<JoinEvent> eventHandler) {
         HandlerList<JoinEvent> handlerList = new HandlerList<>(null);
         handlerList.subscribe(Priority.LOWEST, eventHandler);
         // Test Publish
@@ -28,7 +28,7 @@ public class TestHandlerList {
 
     @Test
     @DisplayName("Test Multiple subscribe()")
-    void testMultipleSubscribe(@Mock EventHandler<JoinEvent> eventHandler,
+    public void testMultipleSubscribe(@Mock EventHandler<JoinEvent> eventHandler,
                                @Mock EventHandler<JoinEvent> eventHandler1,
                                @Mock EventHandler<JoinEvent> eventHandler2,
                                @Mock EventHandler<JoinEvent> eventHandler3,

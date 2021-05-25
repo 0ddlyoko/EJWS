@@ -5,8 +5,6 @@ import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import org.jetbrains.annotations.NotNull;
-
 public final class Version implements Comparable<Version>, Cloneable {
     public static final Version V1_0 = of(new int[] { 1 });
     public static final Version V2_0 = of(new int[] { 2 });
@@ -34,8 +32,7 @@ public final class Version implements Comparable<Version>, Cloneable {
     }
 
     @Override
-    public int compareTo(@NotNull final Version version) {
-        Objects.requireNonNull(version);
+    public int compareTo(Version version) {
         // Go to the first position where version number is different
         int pos = 0;
         while (pos < MAX_SIZE && this.get(pos) == version.get(pos)) {

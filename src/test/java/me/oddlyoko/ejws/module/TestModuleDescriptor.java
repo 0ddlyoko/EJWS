@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import me.oddlyoko.ejws.EJWS;
-import me.oddlyoko.ejws.exceptions.InvalidModuleDescriptorException;
+import me.oddlyoko.ejws.base.exceptions.InvalidModuleDescriptorException;
 import me.oddlyoko.ejws.util.Version;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,7 +16,7 @@ public class TestModuleDescriptor {
 
     @Test
     @DisplayName("Test getters")
-    void testModuleDescriptorGetter() {
+    public void testModuleDescriptorGetter() {
         ModuleDescriptor moduleDescriptor = new ModuleDescriptor(
                 "test 1",
                 "Test Module 1",
@@ -47,7 +47,7 @@ public class TestModuleDescriptor {
 
     @Test
     @DisplayName("Test validate no name")
-    void testValidateNoName() {
+    public void testValidateNoName() {
         ModuleDescriptor descriptor = new ModuleDescriptor(
                 null,
                 "Test Module 1",
@@ -66,7 +66,7 @@ public class TestModuleDescriptor {
 
     @Test
     @DisplayName("Test validate no version")
-    void testValidateNoVersion() {
+    public void testValidateNoVersion() {
         ModuleDescriptor descriptor = new ModuleDescriptor(
                 "test 1",
                 "Test Module 1",
@@ -85,7 +85,7 @@ public class TestModuleDescriptor {
 
     @Test
     @DisplayName("Test validate default description")
-    void testValidateDefaultDescription() {
+    public void testValidateDefaultDescription() {
         ModuleDescriptor descriptor = new ModuleDescriptor(
                 "test 1",
                 null,
@@ -105,7 +105,7 @@ public class TestModuleDescriptor {
 
     @Test
     @DisplayName("Test validate default coreVersion")
-    void testValidateDefaultCoreVersion() {
+    public void testValidateDefaultCoreVersion() {
         ModuleDescriptor descriptor = new ModuleDescriptor(
                 "test 1",
                 "Test 1",
@@ -126,7 +126,7 @@ public class TestModuleDescriptor {
 
     @Test
     @DisplayName("Test validate default title")
-    void testValidateDefaultTitle() {
+    public void testValidateDefaultTitle() {
         ModuleDescriptor descriptor = new ModuleDescriptor(
                 "test 1",
                 "Test 1",
@@ -146,7 +146,7 @@ public class TestModuleDescriptor {
 
     @Test
     @DisplayName("Test validate default version")
-    void testValidateDefaultVersion() {
+    public void testValidateDefaultVersion() {
         ModuleDescriptor descriptor = new ModuleDescriptor(
                 "test 1",
                 "Test 1",
@@ -165,7 +165,7 @@ public class TestModuleDescriptor {
 
     @Test
     @DisplayName("Test validate default authors")
-    void testValidateDefaultAuthors() {
+    public void testValidateDefaultAuthors() {
         ModuleDescriptor descriptor = new ModuleDescriptor(
                 "test 1",
                 "Test 1",
@@ -186,7 +186,7 @@ public class TestModuleDescriptor {
 
     @Test
     @DisplayName("Test validate default dependencies")
-    void testValidateDefaultDependencies() {
+    public void testValidateDefaultDependencies() {
         ModuleDescriptor descriptor = new ModuleDescriptor(
                 "test 1",
                 "Test 1",
@@ -207,7 +207,7 @@ public class TestModuleDescriptor {
 
     @Test
     @DisplayName("Test validate default license")
-    void testValidateDefaultLicense() {
+    public void testValidateDefaultLicense() {
         ModuleDescriptor descriptor = new ModuleDescriptor(
                 "test 1",
                 "Test 1",
@@ -227,7 +227,7 @@ public class TestModuleDescriptor {
 
     @Test
     @DisplayName("Test validate default url")
-    void testValidateDefaultUrl() {
+    public void testValidateDefaultUrl() {
         ModuleDescriptor descriptor = new ModuleDescriptor(
                 "test 1",
                 "Test 1",
@@ -247,7 +247,7 @@ public class TestModuleDescriptor {
 
     @Test
     @DisplayName("Test validate default bugs url")
-    void testValidateDefaultBugsUrl() {
+    public void testValidateDefaultBugsUrl() {
         ModuleDescriptor descriptor = new ModuleDescriptor(
                 "test 1",
                 "Test 1",
@@ -267,7 +267,7 @@ public class TestModuleDescriptor {
 
     @Test
     @DisplayName("Test validate default license url")
-    void testValidateDefaultLicenseUrl() {
+    public void testValidateDefaultLicenseUrl() {
         ModuleDescriptor descriptor = new ModuleDescriptor(
                 "test 1",
                 "Test 1",
@@ -287,7 +287,7 @@ public class TestModuleDescriptor {
 
     @Test
     @DisplayName("Test validate default aaaa")
-    void testValidateDefaultAAAA() {
+    public void testValidateDefaultAAAA() {
         ModuleDescriptor descriptor = new ModuleDescriptor(
                 "test 1",
                 "Test 1",

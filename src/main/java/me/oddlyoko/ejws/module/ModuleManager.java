@@ -2,8 +2,11 @@ package me.oddlyoko.ejws.module;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.InputStreamReader;
 import java.lang.module.ModuleFinder;
 import java.lang.module.ModuleReference;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,15 +14,17 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.ServiceLoader;
 import me.oddlyoko.ejws.algo.dependencygraph.DependencyGraph;
+import me.oddlyoko.ejws.base.events.ModuleLoadEvent;
+import me.oddlyoko.ejws.base.events.ModuleUnloadEvent;
+import me.oddlyoko.ejws.base.exceptions.InvalidModuleDescriptorException;
+import me.oddlyoko.ejws.base.exceptions.ModuleAlreadyLoadedException;
+import me.oddlyoko.ejws.base.exceptions.ModuleLoadException;
+import me.oddlyoko.ejws.base.exceptions.ModuleNotFoundException;
+import me.oddlyoko.ejws.base.exceptions.ModuleProviderNotFoundException;
 import me.oddlyoko.ejws.event.Events;
-import me.oddlyoko.ejws.events.ModuleLoadEvent;
-import me.oddlyoko.ejws.events.ModuleUnloadEvent;
-import me.oddlyoko.ejws.exceptions.InvalidModuleDescriptorException;
-import me.oddlyoko.ejws.exceptions.ModuleLoadException;
 import me.oddlyoko.ejws.util.ModuleHelper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * The way the method load a module is like that:<br />ModuleHelper.
@@ -37,7 +42,7 @@ import org.jetbrains.annotations.NotNull;
 public class ModuleManager {
     private static final Logger LOGGER = LogManager.getLogger(ModuleManager.class);
     public static final String MODULE_JSON_NAME = "module.json";
-    private static final String MODULE_LOAD_ERROR = "Error while loading module %s";
+    public static final String BASE_MODULE_NAME = "EJWS";
 
     private final Map<String, TheModule<? extends Module>> modulesByName;
     private final Map<Class<? extends Module>, TheModule<? extends Module>> modulesByClass;
@@ -47,35 +52,35 @@ public class ModuleManager {
         modulesByClass = new HashMap<>();
     }
 
-    public <M extends Module> Optional<M> getModule(@NotNull Class<M> clazz) {
-        Objects.requireNonNull(clazz, "Given class should not be null");
+    public <M extends Module> Optional<M> getModule(Class<M> clazz) {
         return getTheModule(clazz).map(TheModule::getModule);
     }
 
-    public <M extends Module> Optional<M> getModule(@NotNull String name) {
-        Objects.requireNonNull(name, "Given name should not be null");
+    public <M extends Module> Optional<M> getModule(String name) {
         return this.<M>getTheModule(name).map(TheModule::getModule);
     }
 
     @SuppressWarnings("unchecked")
-    public <M extends Module> Optional<TheModule<M>> getTheModule(@NotNull Class<M> clazz) {
-        Objects.requireNonNull(clazz, "Given class should not be null");
+    public <M extends Module> Optional<TheModule<M>> getTheModule(Class<M> clazz) {
         return Optional.ofNullable((TheModule<M>) modulesByClass.get(clazz));
     }
 
     @SuppressWarnings("unchecked")
-    public <M extends Module> Optional<TheModule<M>> getTheModule(@NotNull String name) {
-        Objects.requireNonNull(name, "Given name should not be null");
+    public <M extends Module> Optional<TheModule<M>> getTheModule(String name) {
         return Optional.ofNullable((TheModule<M>) modulesByName.get(name));
     }
 
+    public List<TheModule<? extends Module>> getModules() {
+        return new ArrayList<>(modulesByClass.values());
+    }
+
     /**
-     * Load all modules from a specific directory
+     * Load all modules from a specific directory<br />
+     * Loading a module before the base module could result in an unknown state
      */
-    public void loadAllModules(@NotNull File directory) throws ModuleLoadException {
-        Objects.requireNonNull(directory, "Given directory should not be null");
+    public void loadAllModules(File directory) throws ModuleLoadException {
         if (!directory.isDirectory())
-            throw new IllegalArgumentException(String.format("Given path (%s) is not a directory", directory.getAbsolutePath()));
+            throw new ModuleLoadException(String.format("Given path (%s) is not a directory", directory.getAbsolutePath()));
         // Get a list of files that are valid jar file
         Map<String, ModuleDescriptor> modules = new HashMap<>();
         Map<String, File> files = new HashMap<>();
@@ -102,6 +107,10 @@ public class ModuleManager {
         for (String moduleName : orderedModules) {
             try {
                 loadModule(files.get(moduleName), modules.get(moduleName));
+            } catch (ModuleAlreadyLoadedException ex) {
+                // Trying to load a module that is already loaded.
+                // We do not throw an exception if that occurs
+                LOGGER.warn(String.format("Trying to load module %s but this module is already loaded", moduleName));
             } catch (ModuleLoadException ex) {
                 LOGGER.error(String.format("Error while load module %s", moduleName), ex);
                 throw ex;
@@ -110,13 +119,13 @@ public class ModuleManager {
     }
 
     /**
-     * Load a jar file as a module
+     * Load a jar file as a module<br />
+     * Loading a module before the base module could result in an unknown state
      *
      * @param jarFile The jar file to load
      * @throws ModuleLoadException If an error occurs while loading the module
      */
-    public void loadModule(@NotNull File jarFile) throws ModuleLoadException {
-        Objects.requireNonNull(jarFile, "Given file should not be null");
+    public void loadModule(File jarFile) throws ModuleLoadException {
         if (!jarFile.exists())
             throw new ModuleLoadException(new FileNotFoundException(String.format("File %s does not exist", jarFile.getPath())));
         ModuleDescriptor moduleDescriptor;
@@ -129,102 +138,57 @@ public class ModuleManager {
     }
 
     /**
-     * Load a jar file as a module with given {@link ModuleDescriptor}
+     * Load a jar file as a module with given {@link ModuleDescriptor}<br />
+     * Loading a module before the base module could result in an unknown state
      *
-     * @param jarFile          The jar File
+     * @param jarFile          The jar file to load
      * @param moduleDescriptor The {@link ModuleDescriptor}
      * @throws ModuleLoadException If an error occurs while loading the module
      */
-    public void loadModule(@NotNull File jarFile, @NotNull ModuleDescriptor moduleDescriptor) throws ModuleLoadException {
-        Objects.requireNonNull(jarFile, "Given jar file should not be null");
-        Objects.requireNonNull(moduleDescriptor, "Given moduleDescriptor should not be null");
-        if (!jarFile.exists())
-            throw new ModuleLoadException(new FileNotFoundException(String.format("File %s does not exist", jarFile.getPath())));
-        // Retrieves the first module
+    public void loadModule(File jarFile, ModuleDescriptor moduleDescriptor) throws ModuleLoadException {
         ModuleFinder moduleFinder = ModuleHelper.ofFile(jarFile);
-        loadModule(jarFile, moduleDescriptor, moduleFinder);
-    }
-
-    /**
-     * Load a jar file as a module with given {@link ModuleDescriptor} and {@link ModuleFinder}
-     *
-     * @param jarFile          The jar File
-     * @param moduleDescriptor The {@link ModuleDescriptor}
-     * @param moduleFinder     The {@link ModuleFinder}
-     * @throws ModuleLoadException If an error occurs while loading the module
-     */
-    public void loadModule(@NotNull File jarFile, @NotNull ModuleDescriptor moduleDescriptor, @NotNull ModuleFinder moduleFinder) throws ModuleLoadException {
-        Objects.requireNonNull(jarFile, "Given jar file should not be null");
-        Objects.requireNonNull(moduleDescriptor, "Given moduleDescriptor should not be null");
-        Objects.requireNonNull(moduleFinder, "Given moduleFinder should not be null");
-        if (!jarFile.exists())
-            throw new ModuleLoadException(new FileNotFoundException(String.format("File %s does not exist", jarFile.getPath())));
-        // Retrieves the first module
-        ModuleReference moduleReference = moduleFinder.findAll().stream().findFirst().orElseThrow(() -> new ModuleLoadException(String.format("Cannot have a ModuleReference for module %s", moduleDescriptor.getName())));
-        loadModule(jarFile, moduleDescriptor, moduleFinder, moduleReference);
-    }
-
-    /**
-     * Load a jar file as a module with given {@link ModuleDescriptor} and {@link ModuleReference}
-     *
-     *
-     * @param jarFile          The jar file
-     * @param moduleDescriptor The {@link ModuleDescriptor}
-     * @param moduleFinder     The {@link ModuleFinder}
-     * @param moduleReference  The {@link ModuleReference}
-     * @throws ModuleLoadException If an error occurs while loading the module
-     */
-    public void loadModule(@NotNull File jarFile, @NotNull ModuleDescriptor moduleDescriptor, @NotNull ModuleFinder moduleFinder, @NotNull ModuleReference moduleReference) throws ModuleLoadException {
-        Objects.requireNonNull(jarFile, "Given jar file should not be null");
-        Objects.requireNonNull(moduleDescriptor, "Given moduleDescriptor should not be null");
-        Objects.requireNonNull(moduleFinder, "Given moduleFinder should not be null");
-        Objects.requireNonNull(moduleReference, "Given moduleReference should not be null");
-        if (!jarFile.exists())
-            throw new ModuleLoadException(String.format(MODULE_LOAD_ERROR, moduleDescriptor.getName()), new FileNotFoundException(String.format("File %s does not exist", jarFile.getPath())));
+        ModuleReference moduleReference = moduleFinder.findAll().stream().findFirst()
+                .orElseThrow(() -> new ModuleLoadException("Given file is not a java module !"));
         ModuleLayer moduleLayer = ModuleHelper.getModuleLayer(moduleFinder);
-        loadModule(jarFile, moduleDescriptor, moduleFinder, moduleReference, moduleLayer);
+        java.lang.Module javaModule = moduleLayer.modules().stream().findFirst()
+                .orElseThrow(() -> new ModuleLoadException("Given file is not a java module !"));
+        Module module = ModuleHelper.load(moduleLayer, Module.class).stream().findFirst()
+                .orElseThrow(() -> new ModuleProviderNotFoundException("Given module does not provide a Module provider !"));
+        loadModule(
+                TheModule.builder(moduleDescriptor, module)
+                        .moduleFinder(moduleFinder)
+                        .moduleReference(moduleReference)
+                        .moduleLayer(moduleLayer)
+                        .javaModule(javaModule)
+                        .build());
     }
 
     /**
-     * Load a jar file as a module with given {@link ModuleDescriptor} and {@link ModuleReference}
+     * Load a module by passing his {@link TheModule}<br />
+     * Loading a module before the base module could result in an unknown state
      *
-     *
-     * @param jarFile          The jar file
-     * @param moduleDescriptor The {@link ModuleDescriptor}
-     * @param moduleFinder     The {@link ModuleFinder}
-     * @param moduleReference  The {@link ModuleReference}
-     * @param moduleLayer      The {@link ModuleLayer}
-     * @throws ModuleLoadException If an error occurs while loading the module
+     * @param theModule The module to load
+     * @param <M>       The class of the module
+     * @throws ModuleLoadException If an error occurs when loading the module
      */
-    public void loadModule(@NotNull File jarFile, @NotNull ModuleDescriptor moduleDescriptor, @NotNull ModuleFinder moduleFinder, @NotNull ModuleReference moduleReference, @NotNull ModuleLayer moduleLayer) throws ModuleLoadException {
-        Objects.requireNonNull(jarFile, "Given jar file should not be null");
-        Objects.requireNonNull(moduleDescriptor, "Given moduleDescriptor should not be null");
-        Objects.requireNonNull(moduleFinder, "Given moduleFinder should not be null");
-        Objects.requireNonNull(moduleReference, "Given moduleReference should not be null");
-        Objects.requireNonNull(moduleLayer, "Given moduleLayer should not be null");
-        if (!jarFile.exists())
-            throw new ModuleLoadException(String.format(MODULE_LOAD_ERROR, moduleDescriptor.getName()), new FileNotFoundException(String.format("File %s does not exist", jarFile.getPath())));
-        if (moduleLayer.modules().isEmpty())
-            throw new ModuleLoadException(String.format(MODULE_LOAD_ERROR, moduleDescriptor.getName()), new IllegalArgumentException("Given moduleLayer is empty"));
-        if (moduleLayer.modules().size() > 1)
-            throw new ModuleLoadException(String.format(MODULE_LOAD_ERROR, moduleDescriptor.getName()), new IllegalArgumentException("Given moduleLayer has more than one module"));
-
-        // Check if the moduleDescriptor is correct
-        try {
-            moduleDescriptor.validate();
-        } catch (InvalidModuleDescriptorException ex) {
-            throw new ModuleLoadException(String.format(MODULE_LOAD_ERROR, moduleDescriptor.getName()), ex);
-        }
-
-        // Check if dependencies are installed
-
+    public <M extends Module> void loadModule(TheModule<M> theModule) throws ModuleLoadException {
+        M module = theModule.getModule();
+        ModuleDescriptor moduleDescriptor = theModule.getModuleDescriptor();
         LOGGER.info("Loading module {}", moduleDescriptor.getName());
-        ServiceLoader<Module> moduleServiceLoader = ServiceLoader.load(moduleLayer, Module.class);
-        Module module = moduleServiceLoader.findFirst().orElseThrow(() -> new ModuleLoadException(String.format(MODULE_LOAD_ERROR, moduleDescriptor.getName()), new IllegalStateException("Given module doesn't have any module !")));
-        TheModule<Module> theModule = new TheModule<>(jarFile, moduleDescriptor, moduleFinder, moduleReference, moduleLayer, module);
+        // Validate the ModuleDescriptor
+        try {
+            theModule.getModuleDescriptor().validate();
+        } catch (InvalidModuleDescriptorException ex) {
+            throw new ModuleLoadException(ex);
+        }
+        // Check if module is already loaded
+        if (modulesByName.containsKey(moduleDescriptor.getName()))
+            throw new ModuleAlreadyLoadedException(String.format("Error while loading module %s: a module with the same name is already loaded", moduleDescriptor.getName()));
+        if (modulesByClass.containsKey(module.getClass()))
+            throw new ModuleAlreadyLoadedException(String.format("Error while loading module %s: a module with the same class is already loaded", moduleDescriptor.getName()));
         // Register events
-        if (module.getModuleEvents() != null)
-            module.getModuleEvents().forEach(eventClass -> Events.registerEventModule(eventClass, theModule));
+        LOGGER.info("Registering {} events", module.getModuleEvents().size());
+        module.getModuleEvents().forEach(eventClass -> Events.registerEventModule(eventClass, theModule));
         // Save it
         modulesByName.put(theModule.getName(), theModule);
         modulesByClass.put(module.getClass(), theModule);
@@ -233,8 +197,8 @@ public class ModuleManager {
             module.onEnable();
         } catch (Exception ex) {
             // An error occurred when calling onEnable. Unloading the module
-            ModuleLoadException exception = new ModuleLoadException(String.format(MODULE_LOAD_ERROR, moduleDescriptor.getName()), ex);
-            LOGGER.error("Module {} failed to load:", moduleDescriptor.getName(), exception);
+            ModuleLoadException moduleLoadException = new ModuleLoadException(String.format("Error while loading module %s", moduleDescriptor.getName()), ex);
+            LOGGER.error("Module {} failed to load:", moduleDescriptor.getName(), moduleLoadException);
             try {
                 // Call onDisable
                 module.onDisable();
@@ -242,16 +206,45 @@ public class ModuleManager {
                 LOGGER.error("Error while calling onDisable()", ex2);
             }
             // Unregister events
-            if (module.getModuleEvents() != null)
-                module.getModuleEvents().forEach(Events::unregisterEventModule);
+            module.getModuleEvents().forEach(Events::unregisterEventModule);
             // Remove it from the list
             modulesByName.remove(theModule.getName());
             modulesByClass.remove(module.getClass());
-            throw exception;
+            throw moduleLoadException;
         }
-        // Call ModuleLoadEvent
+        // Call event
         Events.publish(new ModuleLoadEvent<>(theModule));
         LOGGER.info("Module {} loaded", moduleDescriptor.getName());
+    }
+
+    /**
+     * Load the base module
+     */
+    public void loadBaseModule() throws ModuleLoadException {
+        ModuleLayer moduleLayer = getClass().getModule().getLayer();
+        if (moduleLayer == null)
+            throw new ModuleLoadException(String.format("Module %s not found", BASE_MODULE_NAME));
+        try {
+            ModuleDescriptor moduleDescriptor = ModuleHelper.getModuleDescriptorFromReader(
+                    new InputStreamReader(
+                            Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream(MODULE_JSON_NAME))));
+            java.lang.Module javaModule = moduleLayer.findModule(BASE_MODULE_NAME)
+                    .orElseThrow(() ->
+                            new ModuleNotFoundException(String.format("Module %s not found", BASE_MODULE_NAME)));
+            ServiceLoader<Module> moduleServiceLoader = ServiceLoader.load(moduleLayer, Module.class);
+            Module module = moduleServiceLoader.findFirst()
+                    .orElseThrow(() ->
+                            new ModuleProviderNotFoundException(String.format("Module %s does not provide a Module provider !", BASE_MODULE_NAME)));
+            // Load the module
+            loadModule(
+                    TheModule.builder(moduleDescriptor, module)
+                            .javaModule(javaModule)
+                            .moduleLayer(moduleLayer)
+                            .build()
+            );
+        } catch (InvalidModuleDescriptorException ex) {
+            throw new ModuleLoadException(String.format("Error while loading module %s", BASE_MODULE_NAME), ex);
+        }
     }
 
     /**
@@ -261,14 +254,12 @@ public class ModuleManager {
      * @param module The Module Class to unload
      * @see #unloadModule(TheModule)
      */
-    public void unloadModule(@NotNull Module module) {
-        Objects.requireNonNull(module, "Given module should not be null");
+    public void unloadModule(Module module) {
         getTheModule(module.getClass()).ifPresent(this::unloadModule);
     }
 
-    public void unloadModule(@NotNull String name) {
-        Objects.requireNonNull(name, "Given name should not be null");
-        getTheModule(name).ifPresent(this::unloadModule);
+    public void unloadModule(String moduleName) {
+        getTheModule(moduleName).ifPresent(this::unloadModule);
     }
 
     /**
@@ -284,8 +275,7 @@ public class ModuleManager {
      * @param theModule The module to unload
      * @param <M> The Module
      */
-    public <M extends Module> void unloadModule(@NotNull TheModule<M> theModule) {
-        Objects.requireNonNull(theModule, "Given module should not be null");
+    public <M extends Module> void unloadModule(TheModule<M> theModule) {
         LOGGER.info("Unloading module {}", theModule.getModuleDescriptor().getName());
         // Call ModuleUnloadEvent
         Events.publish(new ModuleUnloadEvent<>(theModule));
@@ -302,5 +292,24 @@ public class ModuleManager {
         modulesByName.remove(theModule.getName());
         modulesByClass.remove(theModule.getModule().getClass());
         LOGGER.info("Module {} unloaded", theModule.getModuleDescriptor().getName());
+    }
+
+    /**
+     * Unload all modules except the base module
+     */
+    public void unloadAllModules() {
+        List<TheModule<?>> modules = new ArrayList<>(modulesByName.values());
+        // Create a dependency graph to unload in order
+        Map<String, String[]> dependencies = new HashMap<>();
+        modules.forEach(m -> dependencies.put(m.getName(), m.getModuleDescriptor().getDependencies()));
+        List<String> orderedModules = DependencyGraph.getOrderedGraph(dependencies);
+        // Reverse it
+        Collections.reverse(orderedModules);
+        // Unload modules
+        orderedModules.forEach(m -> {
+            // Do not unload base module
+            if (!BASE_MODULE_NAME.equalsIgnoreCase(m))
+                unloadModule(m);
+        });
     }
 }

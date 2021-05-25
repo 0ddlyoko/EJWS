@@ -14,7 +14,7 @@ public class TestDependencyGraph {
 
     @Test
     @DisplayName("Test Dependency Graph")
-    void testDependencyGraph() {
+    public void testDependencyGraph() {
         Map<String, String[]> dependencies = new HashMap<>();
         dependencies.put("A", new String[] { "B" });
         dependencies.put("B", new String[] { "C" });
@@ -28,7 +28,7 @@ public class TestDependencyGraph {
 
     @Test
     @DisplayName("Test Dependency Graph 2")
-    void testDependencyGraph2() {
+    public void testDependencyGraph2() {
         Map<String, String[]> dependencies = new HashMap<>();
         dependencies.put("A", new String[] { "B", "D" });
         dependencies.put("B", new String[] { "C" });
@@ -42,7 +42,7 @@ public class TestDependencyGraph {
 
     @Test
     @DisplayName("Test Recursive Dependence")
-    void testRecursiveDependence() {
+    public void testRecursiveDependence() {
         Map<String, String[]> dependencies = new HashMap<>();
         dependencies.put("A", new String[] { "B", "D" });
         dependencies.put("B", new String[] { "C" });
@@ -54,7 +54,7 @@ public class TestDependencyGraph {
 
     @Test
     @DisplayName("Test Dependencies with one without dependence")
-    void testDependenceWithoutDependence() {
+    public void testDependenceWithoutDependence() {
         Map<String, String[]> dependencies = new HashMap<>();
         dependencies.put("A", new String[] { "B", "D" });
         dependencies.put("B", new String[] { "C" });

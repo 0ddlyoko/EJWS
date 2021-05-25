@@ -1,10 +1,6 @@
 package me.oddlyoko.ejws;
 
-import java.io.File;
-import me.oddlyoko.ejws.event.Events;
-import me.oddlyoko.ejws.events.ModuleLoadEvent;
-import me.oddlyoko.ejws.events.ModuleUnloadEvent;
-import me.oddlyoko.ejws.exceptions.ModuleLoadException;
+import me.oddlyoko.ejws.base.exceptions.ModuleLoadException;
 import me.oddlyoko.ejws.module.ModuleManager;
 import me.oddlyoko.ejws.util.Version;
 import org.apache.logging.log4j.LogManager;
@@ -23,13 +19,14 @@ public final class EJWS {
 
     private void run(String[] args) throws ModuleLoadException {
         LOGGER.info("Loading EJWS, please wait ...");
-        // Register events
-        Events.registerEventModule(ModuleLoadEvent.class, null);
-        Events.registerEventModule(ModuleUnloadEvent.class, null);
+        // Load base module
+        LOGGER.info("Loading base module");
+        moduleManager.loadBaseModule();
+        LOGGER.info("Base module loaded");
 
         LOGGER.info("Loading modules ...");
-        File moduleFile = new File("/home/odoo/Desktop/EJWS/target/module/");
-        moduleManager.loadAllModules(moduleFile);
+        //File moduleFile = new File("/home/odoo/Desktop/EJWS/src/test/resources/modules");
+        //moduleManager.loadAllModules(moduleFile);
         // Load the base module
         /*LOGGER.info("Loading base module ...");
         File file = new File("/home/odoo/Desktop/Test/target/Test-1.0.jar");
@@ -41,20 +38,6 @@ public final class EJWS {
         LOGGER.info("Loaded !");
 
         // TODO Lock here
-    }
-
-    /**
-     * Log an error to the console and stop the app.<br />
-     * Used while loading the base module.
-     *
-     * @param error The error message
-     * @param exception The exception, if there is one.
-     */
-    private void logAndStop(String error, Throwable exception) {
-        LOGGER.error("Could not load base module: {}. Stopping the app", error);
-        if (exception != null)
-            LOGGER.error("", exception);
-        System.exit(1);
     }
 
     public ModuleManager getModuleManager() {

@@ -11,7 +11,7 @@ public class TestGsonUtil {
 
     @Test
     @DisplayName("Test getVersionSerializer")
-    void testGetVersionSerializer() {
+    public void testGetVersionSerializer() {
         assertNotNull(GsonUtil.getVersionSerializer());
         assertEquals("\"1.0.0.0\"",
                 new GsonBuilder().registerTypeAdapter(Version.class, GsonUtil.getVersionSerializer()).create().toJson(Version.V1_0));
@@ -25,7 +25,7 @@ public class TestGsonUtil {
 
     @Test
     @DisplayName("Test getVersionDeserializer")
-    void testGetVersionDeserializer() {
+    public void testGetVersionDeserializer() {
         assertNotNull(GsonUtil.getVersionDeserializer());
         assertEquals(Version.V1_0,
                 new GsonBuilder().registerTypeAdapter(Version.class, GsonUtil.getVersionDeserializer()).create().fromJson("1.0", Version.class));

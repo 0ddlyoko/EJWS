@@ -1,9 +1,8 @@
 package me.oddlyoko.ejws.event;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.inOrder;
@@ -24,43 +23,43 @@ import org.mockito.junit.jupiter.MockitoExtension;
 public class TestEvents2 {
 
     @AfterEach
-    void afterEach() {
+    public void afterEach() {
         Events.unregisterEventModule(JoinEvent.class);
         Events.unregisterEventModule(QuitEvent.class);
     }
 
     @Test
     @DisplayName("Test getHandlerList(Class)")
-    void testGetHandlerList() {
-        assertNull(Events.getHandlerList(JoinEvent.class));
-        assertNull(Events.getHandlerList(QuitEvent.class));
+    public void testGetHandlerList() {
+        assertTrue(Events.getHandlerList(JoinEvent.class).isEmpty());
+        assertTrue(Events.getHandlerList(QuitEvent.class).isEmpty());
 
         Events.registerEventModule(JoinEvent.class, null);
         Events.registerEventModule(QuitEvent.class, null);
-        assertNotNull(Events.getHandlerList(JoinEvent.class));
-        assertNotNull(Events.getHandlerList(QuitEvent.class));
+        assertTrue(Events.getHandlerList(JoinEvent.class).isPresent());
+        assertTrue(Events.getHandlerList(QuitEvent.class).isPresent());
 
         Events.unregisterEventModule(JoinEvent.class);
         Events.unregisterEventModule(QuitEvent.class);
-        assertNull(Events.getHandlerList(JoinEvent.class));
-        assertNull(Events.getHandlerList(QuitEvent.class));
+        assertTrue(Events.getHandlerList(JoinEvent.class).isEmpty());
+        assertTrue(Events.getHandlerList(QuitEvent.class).isEmpty());
     }
 
     @Test
     @DisplayName("Test NullPointerException if getHandlerList on unregister event")
-    void testGetHandlerListUnregisteredEvent(@Mock EventHandler<JoinEvent> event) {
-        assertThrows(NullPointerException.class, () -> Events.subscribe(JoinEvent.class, event));
+    public void testGetHandlerListUnregisteredEvent(@Mock EventHandler<JoinEvent> event) {
+        assertThrows(IllegalStateException.class, () -> Events.subscribe(JoinEvent.class, event));
     }
 
     @Test
     @DisplayName("Test IllegalStateException when publishing unregistered event")
-    void testPublishNotRegisteredEvent() {
+    public void testPublishNotRegisteredEvent() {
         assertThrows(IllegalStateException.class, () -> Events.publish(new JoinEvent()));
     }
 
     @Test
     @DisplayName("Test Error in event does not stop other events")
-    void testErrorInEvent(@Mock EventHandler<JoinEvent> event,
+    public void testErrorInEvent(@Mock EventHandler<JoinEvent> event,
                           @Mock EventHandler<JoinEvent> event1,
                           @Mock EventHandler<JoinEvent> event2,
                           @Mock EventHandler<JoinEvent> event3,
@@ -88,7 +87,7 @@ public class TestEvents2 {
 
     @Test
     @DisplayName("Test GetTheModule()")
-    void testGetTheModule(@Mock TheModule<Module> theModule) {
+    public void testGetTheModule(@Mock TheModule<Module> theModule) {
         HandlerList<JoinEvent> handlerList = new HandlerList<>(theModule);
         assertEquals(theModule, handlerList.getTheModule());
     }

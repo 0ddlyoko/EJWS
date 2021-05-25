@@ -1,6 +1,9 @@
 package me.oddlyoko.ejws.util;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -9,7 +12,7 @@ public class TestVersion {
 
     @Test
     @DisplayName("Test of(int[])")
-    void testOf() {
+    public void testOf() {
         assertArrayEquals(new int[] { 1, 0, 0, 0}, Version.of(new int[] { 1 }).getVersion());
         assertArrayEquals(new int[] { 1, 2, 0, 0 }, Version.of(new int[] { 1, 2 }).getVersion());
         assertArrayEquals(new int[] { 1, 2, 3, 0 }, Version.of(new int[] { 1, 2, 3 }).getVersion());
@@ -19,7 +22,7 @@ public class TestVersion {
 
     @Test
     @DisplayName("Test of(String)")
-    void testOfString() {
+    public void testOfString() {
         assertArrayEquals(new int[] { 1, 0, 0, 0 }, Version.of("1").getVersion());
         assertArrayEquals(new int[] { 1, 2, 0, 0 }, Version.of("1.2").getVersion());
         assertArrayEquals(new int[] { 1, 2, 3, 0 }, Version.of("1.2.3").getVersion());
@@ -30,7 +33,7 @@ public class TestVersion {
 
     @Test
     @DisplayName("Test of(String) Empty version")
-    void testOfNull() {
+    public void testOfNull() {
         assertThrows(NullPointerException.class, () -> Version.of((String) null));
         assertThrows(IllegalArgumentException.class, () -> Version.of(""));
         assertThrows(IllegalArgumentException.class, () -> Version.of("\n"));
@@ -38,7 +41,7 @@ public class TestVersion {
 
     @Test
     @DisplayName("Test of(String) Invalid String")
-    void testOfInvalidString() {
+    public void testOfInvalidString() {
         assertThrows(IllegalArgumentException.class, () -> Version.of("a"));
         assertThrows(IllegalArgumentException.class, () -> Version.of("test"));
         assertThrows(IllegalArgumentException.class, () -> Version.of("a.b"));
@@ -48,7 +51,7 @@ public class TestVersion {
 
     @Test
     @DisplayName("Test get(int)")
-    void testGet() {
+    public void testGet() {
         Version v = Version.of("10.23.334.42");
         assertEquals(10, v.get(0));
         assertEquals(23, v.get(1));
@@ -58,7 +61,7 @@ public class TestVersion {
 
     @Test
     @DisplayName("Test getVersion() returns a cloned version")
-    void testGetVersionClone() {
+    public void testGetVersionClone() {
         Version v = Version.of("10.23.334.42");
         assertArrayEquals(new int[] { 10, 23, 334, 42 }, v.getVersion());
         v.getVersion()[0] = 56;
@@ -67,7 +70,7 @@ public class TestVersion {
 
     @Test
     @DisplayName("Test compareTo(Version)")
-    void testCompareTo() {
+    public void testCompareTo() {
         // Test same
         assertEquals(0, Version.of("1.2.3.4").compareTo(Version.of("1.2.3.4")));
         assertEquals(0, Version.of("10.20.30.40").compareTo(Version.of("10.20.30.40")));
@@ -89,7 +92,7 @@ public class TestVersion {
 
     @Test
     @DisplayName("Test equals")
-    void testEquals() {
+    public void testEquals() {
         Version version = Version.V1_0;
         assertEquals(version, version);
         assertNotEquals(version, null);
@@ -99,21 +102,21 @@ public class TestVersion {
 
     @Test
     @DisplayName("Test HashCode")
-    void testHashCode() {
+    public void testHashCode() {
         Version version = Version.V1_0;
         assertEquals(version.hashCode(), version.hashCode());
     }
 
     @Test
     @DisplayName("Test clone()")
-    void testClone() throws CloneNotSupportedException {
+    public void testClone() throws CloneNotSupportedException {
         Version version = Version.V1_0;
         assertEquals(version.clone(), version);
     }
 
     @Test
     @DisplayName("Test toString()")
-    void testToString() {
+    public void testToString() {
         Version version = Version.V1_0;
         assertEquals("1.0.0.0", version.toString());
 

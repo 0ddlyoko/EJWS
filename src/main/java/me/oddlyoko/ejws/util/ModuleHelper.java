@@ -1,6 +1,7 @@
 package me.oddlyoko.ejws.util;
 
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -11,15 +12,16 @@ import java.lang.module.Configuration;
 import java.lang.module.ModuleFinder;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Objects;
+import java.util.List;
+import java.util.Optional;
+import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
-import me.oddlyoko.ejws.exceptions.InvalidModuleDescriptorException;
+import me.oddlyoko.ejws.base.exceptions.InvalidModuleDescriptorException;
 import me.oddlyoko.ejws.module.ModuleDescriptor;
 import me.oddlyoko.ejws.module.ModuleManager;
-import org.jetbrains.annotations.NotNull;
 
 public final class ModuleHelper {
 
@@ -78,8 +80,8 @@ public final class ModuleHelper {
      * @param file The file where are modules
      * @return a {@link String} representing a module present in the given file
      */
-    public static String getModuleNameFromFile(File file) {
-        return getModulesName(ofFile(file)).stream().findFirst().orElse(null);
+    public static Optional<String> getModuleNameFromFile(File file) {
+        return getModulesName(ofFile(file)).stream().findFirst();
     }
 
     /**
@@ -125,8 +127,7 @@ public final class ModuleHelper {
      * @return The {@link ModuleDescriptor} that describes the given jar file
      * @throws InvalidModuleDescriptorException If an error occurs while reading the {@link ModuleDescriptor}
      */
-    @NotNull(exception = InvalidModuleDescriptorException.class)
-    public static ModuleDescriptor getModuleDescriptorFromJarFile(@NotNull File file) throws InvalidModuleDescriptorException {
+    public static ModuleDescriptor getModuleDescriptorFromJarFile(File file) throws InvalidModuleDescriptorException {
         return getModuleDescriptorFromJarFile(file, ModuleManager.MODULE_JSON_NAME);
     }
 
@@ -138,10 +139,7 @@ public final class ModuleHelper {
      * @return The {@link ModuleDescriptor} that describes the given jar file
      * @throws InvalidModuleDescriptorException If an error occurs while reading the {@link ModuleDescriptor}
      */
-    @NotNull(exception = InvalidModuleDescriptorException.class)
-    public static ModuleDescriptor getModuleDescriptorFromJarFile(@NotNull File file, @NotNull String fileName) throws InvalidModuleDescriptorException {
-        Objects.requireNonNull(file, "Given file should not be null");
-        Objects.requireNonNull(fileName, "Given filename should not be null");
+    public static ModuleDescriptor getModuleDescriptorFromJarFile(File file, String fileName) throws InvalidModuleDescriptorException {
         if (!file.isFile())
             throw new InvalidModuleDescriptorException(String.format("%s is not a file !", file.getPath()));
         try (JarFile jar = new JarFile(file)) {
@@ -163,12 +161,11 @@ public final class ModuleHelper {
      * @return The {@link ModuleDescriptor}
      * @throws InvalidModuleDescriptorException If given reader cannot be parsed into a ModuleDescriptor
      */
-    @NotNull(exception = InvalidModuleDescriptorException.class)
-    public static ModuleDescriptor getModuleDescriptorFromReader(@NotNull Reader reader) throws InvalidModuleDescriptorException {
+    public static ModuleDescriptor getModuleDescriptorFromReader(Reader reader) throws InvalidModuleDescriptorException {
         try {
             return new GsonBuilder().registerTypeAdapter(Version.class, GsonUtil.getVersionDeserializer()).create()
                     .fromJson(reader, ModuleDescriptor.class);
-        } catch (JsonSyntaxException ex) {
+        } catch (JsonSyntaxException | JsonIOException ex) {
             throw new InvalidModuleDescriptorException("Given reader cannot be parsed to a ModuleDescriptor", ex);
         }
     }
@@ -180,13 +177,52 @@ public final class ModuleHelper {
      * @return The {@link ModuleDescriptor}
      * @throws InvalidModuleDescriptorException If given json cannot be parsed into a ModuleDescriptor
      */
-    @NotNull(exception = InvalidModuleDescriptorException.class)
-    public static ModuleDescriptor getModuleDescriptorFromJson(@NotNull String json) throws InvalidModuleDescriptorException {
+    public static ModuleDescriptor getModuleDescriptorFromJson(String json) throws InvalidModuleDescriptorException {
         try {
             return new GsonBuilder().registerTypeAdapter(Version.class, GsonUtil.getVersionDeserializer()).create()
                     .fromJson(json, ModuleDescriptor.class);
         } catch (JsonSyntaxException ex) {
             throw new InvalidModuleDescriptorException("Given json cannot be parsed to a ModuleDescriptor", ex);
         }
+    }
+
+    /**
+     * Retrieves provided class for specific {@link ModuleLayer} WITHOUT provided classes that are in "uses".
+     *
+     * @param moduleLayer The {@link ModuleLayer}
+     * @param clazz       The class
+     * @param <S>         The type of the class
+     * @return A {@link Set} of loaded classes where these classes are provided by the {@link Module}
+     */
+    public static <S> Set<S> load(ModuleLayer moduleLayer, Class<S> clazz) {
+        ServiceLoader<S> serviceLoader = ServiceLoader.load(moduleLayer, clazz);
+        Set<String> modules = moduleLayer.modules()
+                // Stream over each modules
+                .stream()
+                // Retrieves the needed class
+                .map(module ->
+                        module.getDescriptor()
+                                // Get provides of the module
+                                .provides()
+                                // Stream over it
+                                .stream()
+                                // Filter to retrieves needed class
+                                .filter(provides ->
+                                        clazz.getName().equalsIgnoreCase(provides.service()))
+                                // Returns the first one (In fact, there should only be one element in the stream)
+                                .findFirst())
+                // Here, we have an Optional<Provides>. Filter on existing Provides
+                .filter(Optional::isPresent)
+                // Get provides
+                .map(p -> p.get().providers())
+                // Flat map
+                .flatMap(List::stream)
+                // Collect it
+                .collect(Collectors.toSet());
+        return serviceLoader
+                .stream()
+                .map(ServiceLoader.Provider::get)
+                .filter(s -> modules.contains(s.getClass().getName()))
+                .collect(Collectors.toSet());
     }
 }

@@ -1,7 +1,6 @@
 package me.oddlyoko.ejws.module;
 
 import java.util.List;
-
 import me.oddlyoko.ejws.event.Event;
 
 public abstract class Module {

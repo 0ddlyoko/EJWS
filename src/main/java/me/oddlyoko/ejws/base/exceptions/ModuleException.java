@@ -1,4 +1,4 @@
-package me.oddlyoko.ejws.exceptions;
+package me.oddlyoko.ejws.base.exceptions;
 
 public class ModuleException extends Exception {
     private static final long serialVersionUID = -2038829587724342133L;

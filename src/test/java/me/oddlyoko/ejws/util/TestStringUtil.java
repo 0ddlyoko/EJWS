@@ -10,7 +10,7 @@ public class TestStringUtil {
 
     @Test
     @DisplayName("Test IsBlank")
-    void testIsBlank() {
+    public void testIsBlank() {
         assertTrue(StringUtil.isBlank(null));
         assertTrue(StringUtil.isBlank(""));
         // Space
