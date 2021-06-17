@@ -27,11 +27,24 @@ public final class Events {
         return Optional.ofNullable((HandlerList<E>) events.get(clazz));
     }
 
+    /**
+     * Register a new event
+     *
+     * @param eventClass The event class
+     * @param theModule  The {@link TheModule}
+     * @param <E> The type of the event
+     */
     public static <E extends Event> void registerEventModule(Class<E> eventClass, TheModule<?> theModule) {
         HandlerList<E> handlerList = new HandlerList<>(theModule);
         events.put(eventClass, handlerList);
     }
 
+    /**
+     * Unregisted an event
+     *
+     * @param eventClass The event class
+     * @param <E> The type of the event
+     */
     public static <E extends Event> void unregisterEventModule(Class<E> eventClass) {
         // We just have to remove the specific handler from the Map
         events.remove(eventClass);

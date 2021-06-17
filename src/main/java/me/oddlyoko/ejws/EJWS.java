@@ -22,9 +22,9 @@ public final class EJWS {
         if (args.length < 1)
             throw new IllegalArgumentException("Missing argument: <directory>");
         File file = new File(args[0]);
-        System.out.println("file.getAbsolutePath() = " + file.getAbsolutePath());
+        LOGGER.info("File is {}", file.getAbsolutePath());
         if (!file.exists() || !file.isDirectory())
-            throw new IllegalArgumentException("Given <directory> argument is not a valid directory");
+            throw new IllegalArgumentException(String.format("Given directory (%s) argument is not a valid directory", args[0]));
         LOGGER.info("Loading EJWS, please wait ...");
         // Load base module
         LOGGER.info("Loading base module");

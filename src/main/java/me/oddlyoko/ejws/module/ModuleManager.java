@@ -27,11 +27,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * The way the method load a module is like that:<br />ModuleHelper.
+ * The way a module is loaded is like that:<br />ModuleHelper.
  * <ol>
  *     <li>Check if the {@link ModuleDescriptor} is valid by calling {@link ModuleDescriptor#validate()}</li>
- *     <li>Check if dependencies are here</li>
- *     <li>Create the module instance by calling his default constructor</li>
+ *     <li>Check if the module isn't already loaded</li>
+ *     <li>Retrieves the module instance</li>
  *     <li>Register events with {@link Events#registerEventModule(Class, TheModule)} and {@link Module#getModuleEvents()}</li>
  *     <li>Add the module to the list</li>
  *     <li>Call {@link Module#onEnable()}</li>
@@ -52,24 +52,56 @@ public class ModuleManager {
         modulesByClass = new HashMap<>();
     }
 
+    /**
+     * Retrieves a {@link Module} from his class
+     *
+     * @param clazz The class of the {@link Module}
+     * @param <M>   The type of the {@link Module}
+     * @return An {@link Optional} containing the {@link Module} if loaded
+     */
     public <M extends Module> Optional<M> getModule(Class<M> clazz) {
         return getTheModule(clazz).map(TheModule::getModule);
     }
 
+    /**
+     * Retrieves a {@link Module} from his name
+     *
+     * @param name The name of the {@link Module}
+     * @param <M>  The type of the {@link Module}
+     * @return     An {@link Optional} containing the {@link Module} if loaded
+     */
     public <M extends Module> Optional<M> getModule(String name) {
         return this.<M>getTheModule(name).map(TheModule::getModule);
     }
 
+    /**
+     * Retrieves a {@link TheModule} from his class
+     *
+     * @param clazz The class of the {@link Module}
+     * @param <M>   The type of the {@link Module}
+     * @return An {@link Optional} containing the {@link TheModule} if loaded
+     */
     @SuppressWarnings("unchecked")
     public <M extends Module> Optional<TheModule<M>> getTheModule(Class<M> clazz) {
         return Optional.ofNullable((TheModule<M>) modulesByClass.get(clazz));
     }
 
+    /**
+     * Retrieves a {@link TheModule} from his name
+     *
+     * @param name The name of the {@link Module}
+     * @param <M>  The type of the {@link Module}
+     * @return An {@link Optional} containing the {@link TheModule} if loaded
+     */
     @SuppressWarnings("unchecked")
     public <M extends Module> Optional<TheModule<M>> getTheModule(String name) {
         return Optional.ofNullable((TheModule<M>) modulesByName.get(name));
     }
 
+    /**
+     * @return A new {@link List} of loaded {@link Module Modules}<br />
+     * Any changes to the list will not be reflected to the original list
+     */
     public List<TheModule<? extends Module>> getModules() {
         return new ArrayList<>(modulesByClass.values());
     }

@@ -202,9 +202,7 @@ public final class ModuleHelper {
                 // Retrieves the needed class
                 .map(module ->
                         module.getDescriptor()
-                                // Get provides of the module
                                 .provides()
-                                // Stream over it
                                 .stream()
                                 // Filter to retrieves needed class
                                 .filter(provides ->
@@ -215,9 +213,7 @@ public final class ModuleHelper {
                 .filter(Optional::isPresent)
                 // Get provides
                 .map(p -> p.get().providers())
-                // Flat map
                 .flatMap(List::stream)
-                // Collect it
                 .collect(Collectors.toSet());
         return serviceLoader
                 .stream()

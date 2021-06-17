@@ -11,6 +11,19 @@ public final class DependencyGraph {
     private DependencyGraph() {
     }
 
+    /**
+     * Order given map to have an ordered graph<br />
+     * Example:
+     * A: B, C, D
+     * B: C, D
+     * C: D
+     * D: /
+     *
+     * ==> D, C, B, A
+     *
+     * @param dependencies The dependency graph
+     * @return An ordered graoh
+     */
     public static List<String> getOrderedGraph(Map<String, String[]> dependencies) {
         List<String> result = new ArrayList<>();
         Map<String, Boolean> marked = new HashMap<>();

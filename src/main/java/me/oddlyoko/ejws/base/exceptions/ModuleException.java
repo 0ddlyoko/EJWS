@@ -1,5 +1,8 @@
 package me.oddlyoko.ejws.base.exceptions;
 
+/**
+ * Throws when there is an exception about a {@link me.oddlyoko.ejws.module.Module}
+ */
 public class ModuleException extends Exception {
     private static final long serialVersionUID = -2038829587724342133L;
 
