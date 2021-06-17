@@ -77,8 +77,11 @@ public class ModuleManager {
     /**
      * Load all modules from a specific directory<br />
      * Loading a module before the base module could result in an unknown state
+     *
+     * @param directory The directory where modules are
+     * @return The number of loaded modules
      */
-    public void loadAllModules(File directory) throws ModuleLoadException {
+    public int loadAllModules(File directory) throws ModuleLoadException {
         if (!directory.isDirectory())
             throw new ModuleLoadException(String.format("Given path (%s) is not a directory", directory.getAbsolutePath()));
         // Get a list of files that are valid jar file
@@ -86,7 +89,7 @@ public class ModuleManager {
         Map<String, File> files = new HashMap<>();
         File[] jarFiles = directory.listFiles();
         if (jarFiles == null)
-            return;
+            return 0;
         for (File file : jarFiles) {
             if (file.isFile()) {
                 ModuleDescriptor moduleDescriptor;
@@ -104,9 +107,11 @@ public class ModuleManager {
         Map<String, String[]> dependencies = new HashMap<>();
         modules.values().forEach(moduleDescriptor -> dependencies.put(moduleDescriptor.getName(), moduleDescriptor.getDependencies()));
         List<String> orderedModules = DependencyGraph.getOrderedGraph(dependencies);
+        int loaded = 0;
         for (String moduleName : orderedModules) {
             try {
                 loadModule(files.get(moduleName), modules.get(moduleName));
+                loaded++;
             } catch (ModuleAlreadyLoadedException ex) {
                 // Trying to load a module that is already loaded.
                 // We do not throw an exception if that occurs
@@ -116,6 +121,7 @@ public class ModuleManager {
                 throw ex;
             }
         }
+        return loaded;
     }
 
     /**
@@ -213,7 +219,7 @@ public class ModuleManager {
             throw moduleLoadException;
         }
         // Call event
-        Events.publish(new ModuleLoadEvent<>(theModule));
+        Events.publish(new ModuleLoadEvent(theModule));
         LOGGER.info("Module {} loaded", moduleDescriptor.getName());
     }
 
@@ -278,7 +284,7 @@ public class ModuleManager {
     public <M extends Module> void unloadModule(TheModule<M> theModule) {
         LOGGER.info("Unloading module {}", theModule.getModuleDescriptor().getName());
         // Call ModuleUnloadEvent
-        Events.publish(new ModuleUnloadEvent<>(theModule));
+        Events.publish(new ModuleUnloadEvent(theModule));
         try {
             // Call onDisable
             theModule.getModule().onDisable();

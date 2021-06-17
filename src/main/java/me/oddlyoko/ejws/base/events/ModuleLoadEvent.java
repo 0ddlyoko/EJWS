@@ -3,9 +3,9 @@ package me.oddlyoko.ejws.base.events;
 import me.oddlyoko.ejws.module.Module;
 import me.oddlyoko.ejws.module.TheModule;
 
-public class ModuleLoadEvent<E extends Module> extends ModuleEvent<E> {
+public class ModuleLoadEvent extends ModuleEvent {
 
-    public ModuleLoadEvent(TheModule<E> theModule) {
+    public ModuleLoadEvent(TheModule<? extends Module> theModule) {
         super(theModule);
     }
 }

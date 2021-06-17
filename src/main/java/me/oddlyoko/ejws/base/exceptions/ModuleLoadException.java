@@ -3,9 +3,6 @@ package me.oddlyoko.ejws.base.exceptions;
 public class ModuleLoadException extends ModuleException {
     private static final long serialVersionUID = -1649294974173723846L;
 
-    public ModuleLoadException() {
-    }
-
     public ModuleLoadException(String message) {
         super(message);
     }
@@ -16,9 +13,5 @@ public class ModuleLoadException extends ModuleException {
 
     public ModuleLoadException(Throwable cause) {
         super(cause);
-    }
-
-    public ModuleLoadException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
     }
 }

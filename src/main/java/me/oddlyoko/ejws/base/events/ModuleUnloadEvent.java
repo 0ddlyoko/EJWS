@@ -6,11 +6,10 @@ import me.oddlyoko.ejws.module.TheModule;
 /**
  * Event called when a module is unloading<br />
  * This event is called before {@link Module#onDisable()} so please be sure that you are unregistering links from this class
- * @param <E>
  */
-public class ModuleUnloadEvent<E extends Module> extends ModuleEvent<E> {
+public class ModuleUnloadEvent extends ModuleEvent {
 
-    public ModuleUnloadEvent(TheModule<E> theModule) {
+    public ModuleUnloadEvent(TheModule<? extends Module> theModule) {
         super(theModule);
     }
 }

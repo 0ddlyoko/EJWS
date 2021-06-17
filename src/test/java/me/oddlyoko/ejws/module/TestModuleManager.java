@@ -4,25 +4,35 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import java.io.File;
 import java.net.URISyntaxException;
+import java.util.Optional;
 import java.util.ServiceLoader;
 import me.oddlyoko.ejws.base.BaseModule;
 import me.oddlyoko.ejws.base.events.ModuleLoadEvent;
 import me.oddlyoko.ejws.base.events.ModuleUnloadEvent;
 import me.oddlyoko.ejws.base.exceptions.ModuleAlreadyLoadedException;
 import me.oddlyoko.ejws.base.exceptions.ModuleLoadException;
+import me.oddlyoko.ejws.event.EventHandler;
 import me.oddlyoko.ejws.event.Events;
 import me.oddlyoko.ejws.util.ModuleHelper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
 public class TestModuleManager {
 
-    private ModuleManager moduleManager;
+    public ModuleManager moduleManager;
 
     @BeforeEach
     public void beforeEach() {
@@ -62,12 +72,16 @@ public class TestModuleManager {
 
     @Test
     @DisplayName("Test loadAllModules")
-    public void testLoadAllModules() {
+    public void testLoadAllModules() throws URISyntaxException, ModuleLoadException {
         // Load base module
         assertDoesNotThrow(() -> moduleManager.loadBaseModule());
         assertDoesNotThrow(() -> moduleManager.loadAllModules(new File(TestModuleManager.class.getClassLoader().getResource("modules/").toURI())));
         assertEquals(3, moduleManager.getModules().size());
         // Unload all modules
+        moduleManager.unloadAllModules();
+        assertEquals(1, moduleManager.getModules().size());
+        assertEquals(2, moduleManager.loadAllModules(new File(TestModuleManager.class.getClassLoader().getResource("modules/").toURI())));
+        assertEquals(3, moduleManager.getModules().size());
     }
 
     @Test
@@ -159,5 +173,45 @@ public class TestModuleManager {
         // 1 module: the one we want
         assertEquals(1, ModuleHelper.load(moduleLayer, Module.class).size());
         assertEquals("me.oddlyoko.test1.TestModule1", ModuleHelper.load(moduleLayer, Module.class).stream().findFirst().get().getClass().getName());
+    }
+
+    @Test
+    @DisplayName("Test ModuleLoadEvent ModuleUnloadEvent")
+    public void testLoadModuleCreatesModuleLoadEvent(@Mock EventHandler<ModuleLoadEvent> loadEvent,
+                                                     @Mock EventHandler<ModuleUnloadEvent> unloadEvent) {
+        // Load base module
+        assertDoesNotThrow(() -> moduleManager.loadBaseModule());
+        // Register the events
+        Events.subscribe(ModuleLoadEvent.class, loadEvent);
+        Events.subscribe(ModuleUnloadEvent.class, unloadEvent);
+        // Load a module
+        assertDoesNotThrow(() -> moduleManager.loadModule(new File(getClass().getClassLoader().getResource("modules/Test1-1.0.jar").toURI())));
+        verify(loadEvent).execute(any());
+        verify(unloadEvent, never()).execute(any());
+        // Unload the module
+        moduleManager.unloadAllModules();
+        verify(loadEvent).execute(any());
+        verify(unloadEvent).execute(any());
+        // Load again
+        assertDoesNotThrow(() -> moduleManager.loadModule(new File(getClass().getClassLoader().getResource("modules/Test1-1.0.jar").toURI())));
+        verify(loadEvent, times(2)).execute(any());
+        verify(unloadEvent).execute(any());
+        // Unload again
+        moduleManager.unloadAllModules();
+        verify(loadEvent, times(2)).execute(any());
+        verify(unloadEvent, times(2)).execute(any());
+    }
+
+    @Test
+    @DisplayName("Test unloadModule(Module)")
+    public void testUnloadModule() {
+        // Load base module
+        assertDoesNotThrow(() -> moduleManager.loadBaseModule());
+        assertDoesNotThrow(() -> moduleManager.loadModule(new File(getClass().getClassLoader().getResource("modules/Test1-1.0.jar").toURI())));
+        assertEquals(2, moduleManager.getModules().size());
+        Optional<Module> module = moduleManager.getModule("test 1");
+        assertTrue(module.isPresent());
+        assertDoesNotThrow(() -> moduleManager.unloadModule(module.get()));
+        assertEquals(1, moduleManager.getModules().size());
     }
 }

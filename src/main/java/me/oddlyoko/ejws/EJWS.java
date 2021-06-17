@@ -1,5 +1,6 @@
 package me.oddlyoko.ejws;
 
+import java.io.File;
 import me.oddlyoko.ejws.base.exceptions.ModuleLoadException;
 import me.oddlyoko.ejws.module.ModuleManager;
 import me.oddlyoko.ejws.util.Version;
@@ -17,24 +18,20 @@ public final class EJWS {
         moduleManager = new ModuleManager();
     }
 
-    private void run(String[] args) throws ModuleLoadException {
+    public void run(String[] args) throws ModuleLoadException {
+        if (args.length < 1)
+            throw new IllegalArgumentException("Missing argument: <directory>");
+        File file = new File(args[0]);
+        System.out.println("file.getAbsolutePath() = " + file.getAbsolutePath());
+        if (!file.exists() || !file.isDirectory())
+            throw new IllegalArgumentException("Given <directory> argument is not a valid directory");
         LOGGER.info("Loading EJWS, please wait ...");
         // Load base module
         LOGGER.info("Loading base module");
         moduleManager.loadBaseModule();
         LOGGER.info("Base module loaded");
-
         LOGGER.info("Loading modules ...");
-        //File moduleFile = new File("/home/odoo/Desktop/EJWS/src/test/resources/modules");
-        //moduleManager.loadAllModules(moduleFile);
-        // Load the base module
-        /*LOGGER.info("Loading base module ...");
-        File file = new File("/home/odoo/Desktop/Test/target/Test-1.0.jar");
-        try {
-            moduleManager.load(file);
-        } catch (ModuleLoadException ex) {
-            ex.printStackTrace();
-        }*/
+        moduleManager.loadAllModules(file);
         LOGGER.info("Loaded !");
 
         // TODO Lock here
