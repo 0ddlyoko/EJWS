@@ -1,0 +1,84 @@
+name: Deploy & Release - Develop
+on:
+  workflow_dispatch:
+    inputs:
+      releaseVersion:
+        description: "Version of the snapshot release (without -SNAPSHOT)"
+        required: true
+        default: "1.0.0"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v2
+        with:
+          ref: develop
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'
+          distribution: 'adopt'
+
+      - name: Build and Test with Maven
+        run: mvn --batch-mode --update-snapshots test
+
+  create_draft_release:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v2
+        with:
+          ref: develop
+
+      - name: Create a Pre-Release
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{ github.event.inputs.releaseVersion }}-SNAPSHOT
+          release_name: Snapshot ${{ github.event.inputs.releaseVersion }}
+          body_path: "PRE_RELEASE_NOTE"
+          draft: true
+          prerelease: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  update_version_build:
+    needs: create_draft_release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v2
+        with:
+          ref: develop
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'
+          distribution: 'adopt'
+
+      - name: Set up Maven Settings for deploy
+        run: |
+          git config user.name "GitHub Actions";
+          git config user.email "actions@github.com";
+          mvn versions:set -DnewVersion=${{ github.event.inputs.releaseVersion }}-SNAPSHOT -DgenerateBackupPoms=false;
+          mvn versions:set-property -Dproperty=project.version -DnewVersion=${{ github.event.inputs.releaseVersion }}-SNAPSHOT;
+          git add pom.xml;
+          git commit -m "Version ${{ github.event.inputs.releaseVersion }}-SNAPSHOT";
+
+      - name: Build Jar file
+        run: |
+          mvn -B package;
+          mv target/Test-CI-CD-${{ github.event.inputs.releaseVersion }}-SNAPSHOT.jar ./Test-CI-CD.jar;
+
+      - name: Publish jar
+        run: |
+          hub release edit -a Test-CI-CD.jar -m "" "${{ github.event.inputs.releaseVersion }}-SNAPSHOT";
+          git push;
+          hub release edit --draft=false -m "" "${{ github.event.inputs.releaseVersion }}-SNAPSHOT";
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
