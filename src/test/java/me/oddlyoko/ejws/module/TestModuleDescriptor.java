@@ -6,13 +6,28 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.io.IOException;
 import me.oddlyoko.ejws.EJWS;
 import me.oddlyoko.ejws.base.exceptions.InvalidModuleDescriptorException;
+import me.oddlyoko.ejws.base.exceptions.ModuleLoadException;
 import me.oddlyoko.ejws.util.Version;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 public class TestModuleDescriptor {
+
+    @BeforeEach
+    public void beforeEach() throws ModuleLoadException, IOException {
+        // Load EJWS
+        EJWS.main(new String[] {});
+    }
+
+    @AfterEach
+    public void afterEach() {
+        EJWS.get().unload();
+    }
 
     @Test
     @DisplayName("Test getters")
@@ -283,26 +298,5 @@ public class TestModuleDescriptor {
                 "https://github.com/0ddlyoko/EJWS");
         assertDoesNotThrow(descriptor::validate);
         assertEquals("https://github.com/0ddlyoko/EJWS", descriptor.getLicenseUrl());
-    }
-
-    @Test
-    @DisplayName("Test validate default aaaa")
-    public void testValidateDefaultAAAA() {
-        ModuleDescriptor descriptor = new ModuleDescriptor(
-                "test 1",
-                "Test 1",
-                Version.V1_0,
-                Version.V1_0,
-                "Test Module 1",
-                Version.V1_0,
-                new String[] { "0ddlyoko" },
-                new String[] { },
-                "https://github.com/0ddlyoko/EJWS/issues",
-                "MIT",
-                "https://github.com/0ddlyoko/EJWS/blob/master/LICENSE",
-                "https://github.com/0ddlyoko/EJWS");
-        assertDoesNotThrow(descriptor::validate);
-        assertEquals(EJWS.get().getVersion(), descriptor.getMinimumCoreVersion());
-        assertEquals(EJWS.get().getVersion(), descriptor.getMaximumCoreVersion());
     }
 }

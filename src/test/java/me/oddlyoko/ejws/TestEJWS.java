@@ -24,11 +24,11 @@ public class TestEJWS {
     @DisplayName("Test EJWS without parameters")
     public void testEJWSWithoutParameters() throws URISyntaxException {
         String rootDirectory = new File(TestEJWS.class.getClassLoader().getResource("modules").toURI()).getParentFile().getAbsolutePath();
-        assertThrows(IllegalArgumentException.class, () -> EJWS.get().run(new String[] {}));
+        assertDoesNotThrow(() -> EJWS.main(new String[] {}));
         // Give invalid directory
-        assertThrows(IllegalArgumentException.class, () -> EJWS.get().run(new String[] { rootDirectory + "/invalid" }));
+        assertThrows(IllegalArgumentException.class, () -> EJWS.main(new String[] { rootDirectory + "/invalid" }));
         // Give valid directory
-        assertDoesNotThrow(() -> EJWS.get().run(new String[] { rootDirectory + "/modules" }));
+        assertDoesNotThrow(() -> EJWS.main(new String[] { rootDirectory + "/modules" }));
         assertEquals(3, EJWS.get().getModuleManager().getModules().size());
     }
 }
