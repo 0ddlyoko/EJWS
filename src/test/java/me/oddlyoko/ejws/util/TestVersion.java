@@ -35,18 +35,18 @@ public class TestVersion {
     @DisplayName("Test of(String) Empty version")
     public void testOfNull() {
         assertThrows(NullPointerException.class, () -> Version.of((String) null));
-        assertThrows(IllegalArgumentException.class, () -> Version.of(""));
-        assertThrows(IllegalArgumentException.class, () -> Version.of("\n"));
+        assertEquals(Version.of(new int[] {}), Version.of(""));
+        assertEquals(Version.of(new int[] {}), Version.of("\n"));
     }
 
     @Test
     @DisplayName("Test of(String) Invalid String")
     public void testOfInvalidString() {
-        assertThrows(IllegalArgumentException.class, () -> Version.of("a"));
-        assertThrows(IllegalArgumentException.class, () -> Version.of("test"));
-        assertThrows(IllegalArgumentException.class, () -> Version.of("a.b"));
-        assertThrows(IllegalArgumentException.class, () -> Version.of("1.2.c"));
-        assertThrows(IllegalArgumentException.class, () -> Version.of("1.2.3.4.5.6.7.8.9.10.e"));
+        assertEquals(Version.of(new int[] {}), Version.of("a"));
+        assertEquals(Version.of(new int[] {}), Version .of("test"));
+        assertEquals(Version.of(new int[] {}), Version.of("a.b"));
+        assertEquals(Version.of(new int[] { 1, 2 }), Version.of("1.2.c"));
+        assertEquals(Version.of(new int[] { 1, 2, 3, 4 }), Version.of("1.2.3.4.5.6.7.8.9.10.e"));
     }
 
     @Test

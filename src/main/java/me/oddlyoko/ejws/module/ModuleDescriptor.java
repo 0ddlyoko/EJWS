@@ -119,8 +119,12 @@ public class ModuleDescriptor {
             description = name.substring(0, 1).toUpperCase(Locale.ENGLISH) + name.substring(1) + " - Description not found";
         if (minimumCoreVersion == null)
             minimumCoreVersion = EJWS.get().getVersion();
+        if (EJWS.get().getVersion().compareTo(minimumCoreVersion) < 0)
+            throw new InvalidModuleDescriptorException(String.format("This module requires a minimum version of %s", minimumCoreVersion));
         if (maximumCoreVersion == null)
             maximumCoreVersion = EJWS.get().getVersion();
+        if (EJWS.get().getVersion().compareTo(maximumCoreVersion) > 0)
+            throw new InvalidModuleDescriptorException(String.format("This module requires a maximum version of %s", maximumCoreVersion));
         if (StringUtil.isBlank(title))
             title = name.substring(0, 1).toUpperCase(Locale.ENGLISH) + name.substring(1);
         if (authors == null)

@@ -1,7 +1,6 @@
 package me.oddlyoko.ejws.util;
 
 import java.util.Arrays;
-import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -9,9 +8,7 @@ public final class Version implements Comparable<Version>, Cloneable {
     public static final Version V1_0 = of(new int[] { 1 });
     public static final Version V2_0 = of(new int[] { 2 });
 
-    // 4 - DO NOT EDIT THIS VARIABLE
     public static final int MAX_SIZE = 4;
-    private static final Pattern VERSION_PATTERN_CHECK = Pattern.compile("^\\d+(\\.\\d+)*$");
     private static final Pattern VERSION_SPLIT = Pattern.compile("\\d+");
 
     private final int[] version;
@@ -76,22 +73,21 @@ public final class Version implements Comparable<Version>, Cloneable {
 
     /**
      * Transform a String version to a usable Version<br />
-     * The String version should be of one of this format:<br />
+     * The recommended String version is of one of this format:<br />
      * <ul>
      *     <li>major</li>
      *     <li>major.minor</li>
      *     <li>major.minor.rev</li>
      *     <li>major.minor.rev.beta</li>
      * </ul>
+     * In fact, we just retrieves the 4 first numbers present in the given string<br />
+     * So, a string like <b>1a2b3c4d</b> returns <b>{ 1, 2, 3, 4 }</b>
      *
      * @param stringVersion The String version
      * @return The correct version
      */
     public static Version of(String stringVersion) {
-        Objects.requireNonNull(stringVersion);
         // Check if the pattern is correct
-        if (!VERSION_PATTERN_CHECK.matcher(stringVersion).matches())
-            throw new IllegalArgumentException(String.format("Given version (%s) is not a valid version !", stringVersion));
         int[] version = VERSION_SPLIT.matcher(stringVersion).results().mapToInt(ver -> Integer.parseInt(ver.group())).toArray();
         return of(version);
     }
