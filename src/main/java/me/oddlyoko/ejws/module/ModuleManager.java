@@ -221,9 +221,13 @@ public class ModuleManager {
         }
         // Check if module is already loaded
         if (modulesByName.containsKey(moduleDescriptor.getName()))
-            throw new ModuleAlreadyLoadedException(String.format("Error while loading module %s: a module with the same name is already loaded", moduleDescriptor.getName()));
+            throw new ModuleAlreadyLoadedException("A module with the same name is already loaded");
         if (modulesByClass.containsKey(module.getClass()))
-            throw new ModuleAlreadyLoadedException(String.format("Error while loading module %s: a module with the same class is already loaded", moduleDescriptor.getName()));
+            throw new ModuleAlreadyLoadedException("A module with the same class is already loaded");
+        // Check if dependencies are met
+        for (String dependency : theModule.getModuleDescriptor().getDependencies())
+            if (getTheModule(dependency).isEmpty())
+                throw new ModuleLoadException(theModule, String.format("Missing %s", dependency));
         // Register events
         LOGGER.info("Registering {} events", module.getModuleEvents().size());
         module.getModuleEvents().forEach(eventClass -> Events.registerEventModule(eventClass, theModule));
@@ -235,7 +239,7 @@ public class ModuleManager {
             module.onEnable();
         } catch (Exception ex) {
             // An error occurred when calling onEnable. Unloading the module
-            ModuleLoadException moduleLoadException = new ModuleLoadException(String.format("Error while loading module %s", moduleDescriptor.getName()), ex);
+            ModuleLoadException moduleLoadException = new ModuleLoadException(theModule, ex);
             LOGGER.error("Module {} failed to load:", moduleDescriptor.getName(), moduleLoadException);
             try {
                 // Call onDisable
