@@ -6,6 +6,8 @@
         applies to:
         - log4J
             https://logging.apache.org/log4j/2.x/license.html
+        - gson
+            https://github.com/google/gson/blob/master/LICENSE
             
 
 -----------------------------------------------------------------------------

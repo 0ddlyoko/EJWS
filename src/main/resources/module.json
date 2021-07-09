@@ -1,0 +1,12 @@
+{
+  "name": "EJWS",
+  "description": "Base Module for EJWS",
+  "title": "EJWS - Base",
+  "version": 1.0,
+  "authors": ["0ddlyoko"],
+  "dependencies": [],
+  "bugs": "https://github.com/0ddlyoko/EJWS/issues",
+  "license": "MIT",
+  "licenseUrl": "https://github.com/0ddlyoko/EJWS/blob/master/LICENSE",
+  "url": "https://github.com/0ddlyoko/EJWS"
+}

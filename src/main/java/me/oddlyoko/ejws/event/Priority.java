@@ -6,10 +6,10 @@ package me.oddlyoko.ejws.event;
  */
 public enum Priority {
     LOWEST(1),
-    LOWER(2),
+    LOW(2),
     NORMAL(3),
     HIGH(4),
-    HIGHER(5);
+    HIGHEST(5);
 
     private final int priority;
 
