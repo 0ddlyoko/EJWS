@@ -1,8 +1,6 @@
 package me.oddlyoko.ejws.module;
 
 import java.util.Locale;
-
-import me.oddlyoko.ejws.EJWS;
 import me.oddlyoko.ejws.base.exceptions.InvalidModuleDescriptorException;
 import me.oddlyoko.ejws.util.StringUtil;
 import me.oddlyoko.ejws.util.Version;
@@ -10,8 +8,6 @@ import me.oddlyoko.ejws.util.Version;
 public class ModuleDescriptor {
     private String name;
     private String description;
-    private Version minimumCoreVersion;
-    private Version maximumCoreVersion;
     private String title;
     private Version version;
     private String[] authors;
@@ -24,11 +20,9 @@ public class ModuleDescriptor {
     public ModuleDescriptor() {
     }
 
-    public ModuleDescriptor(String name, String description, Version minimumCoreVersion, Version maximumCoreVersion, String title, Version version, String[] authors, String[] dependencies, String bugs, String license, String licenseUrl, String url) {
+    public ModuleDescriptor(String name, String description, String title, Version version, String[] authors, String[] dependencies, String bugs, String license, String licenseUrl, String url) {
         this.name = name;
         this.description = description;
-        this.minimumCoreVersion = minimumCoreVersion;
-        this.maximumCoreVersion = maximumCoreVersion;
         this.title = title;
         this.version = version;
         this.authors = authors;
@@ -45,14 +39,6 @@ public class ModuleDescriptor {
 
     public String getDescription() {
         return description;
-    }
-
-    public Version getMinimumCoreVersion() {
-        return minimumCoreVersion;
-    }
-
-    public Version getMaximumCoreVersion() {
-        return maximumCoreVersion;
     }
 
     public String getTitle() {
@@ -96,8 +82,6 @@ public class ModuleDescriptor {
      * Default fields are:
      * <ul>
      *     <li><b>description</b>: <i>{Name} - Description not found</i></li>
-     *     <li><b>minimumCoreVersion</b>: <i>{Version of EJWS}</i></li>
-     *     <li><b>maximumCoreVersion</b>: <i>{Version of EJWS}</i></li>
      *     <li><b>title</b>: <i>{Name}</i></li>
      *     <li><b>version</b>: <i>1.0.0</i></li>
      *     <li><b>authors</b>: <i>[]</i></li>
@@ -117,14 +101,6 @@ public class ModuleDescriptor {
         // Set default fields
         if (StringUtil.isBlank(description))
             description = name.substring(0, 1).toUpperCase(Locale.ENGLISH) + name.substring(1) + " - Description not found";
-        if (minimumCoreVersion == null)
-            minimumCoreVersion = EJWS.get().getVersion();
-        if (EJWS.get().getVersion().compareTo(minimumCoreVersion) < 0)
-            throw new InvalidModuleDescriptorException(String.format("This module requires a minimum version of %s", minimumCoreVersion));
-        if (maximumCoreVersion == null)
-            maximumCoreVersion = EJWS.get().getVersion();
-        if (EJWS.get().getVersion().compareTo(maximumCoreVersion) > 0)
-            throw new InvalidModuleDescriptorException(String.format("This module requires a maximum version of %s", maximumCoreVersion));
         if (StringUtil.isBlank(title))
             title = name.substring(0, 1).toUpperCase(Locale.ENGLISH) + name.substring(1);
         if (authors == null)

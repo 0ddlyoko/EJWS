@@ -119,8 +119,6 @@ public class TestModuleHelper {
         assertNotNull(moduleDescriptor);
         assertEquals("test 1", moduleDescriptor.getName());
         assertEquals("Test Module 1", moduleDescriptor.getDescription());
-        assertEquals(Version.V1_0, moduleDescriptor.getMinimumCoreVersion());
-        assertEquals(Version.V1_0, moduleDescriptor.getMaximumCoreVersion());
         assertEquals("Test Module 1", moduleDescriptor.getTitle());
         assertEquals(Version.V1_0, moduleDescriptor.getVersion());
         assertArrayEquals(new String[] { "0ddlyoko" }, moduleDescriptor.getAuthors());
@@ -150,8 +148,6 @@ public class TestModuleHelper {
                 assertNotNull(moduleDescriptor);
                 assertEquals("test 1", moduleDescriptor.getName());
                 assertEquals("Test Module 1", moduleDescriptor.getDescription());
-                assertEquals(Version.V1_0, moduleDescriptor.getMinimumCoreVersion());
-                assertEquals(Version.V1_0, moduleDescriptor.getMaximumCoreVersion());
                 assertEquals("Test Module 1", moduleDescriptor.getTitle());
                 assertEquals(Version.V1_0, moduleDescriptor.getVersion());
                 assertArrayEquals(new String[] { "0ddlyoko" }, moduleDescriptor.getAuthors());
@@ -166,7 +162,7 @@ public class TestModuleHelper {
 
     @Test
     @DisplayName("Test getModuleDescriptorFromReader invalid reader")
-    public void testGetModuleDescriptorFromReaderInvalidReader() throws URISyntaxException, IOException, InvalidModuleDescriptorException {
+    public void testGetModuleDescriptorFromReaderInvalidReader() throws URISyntaxException, IOException {
         try (JarFile jar = new JarFile(new File(Thread.currentThread().getContextClassLoader().getResource("modules/Test1-1.0.jar").toURI()))) {
             JarEntry entry = jar.getJarEntry("module-info.class");
             try (Reader reader = new InputStreamReader(jar.getInputStream(entry))) {
@@ -181,8 +177,6 @@ public class TestModuleHelper {
         String json = "{\n" +
                 "  \"name\": \"test 1\",\n" +
                 "  \"description\": \"Test Module 1\",\n" +
-                "  \"minimumCoreVersion\": \"1.0\",\n" +
-                "  \"maximumCoreVersion\": \"1.0\",\n" +
                 "  \"title\": \"Test Module 1\",\n" +
                 "  \"version\": 1.0,\n" +
                 "  \"authors\": [\"0ddlyoko\"],\n" +
@@ -196,8 +190,6 @@ public class TestModuleHelper {
         assertNotNull(moduleDescriptor);
         assertEquals("test 1", moduleDescriptor.getName());
         assertEquals("Test Module 1", moduleDescriptor.getDescription());
-        assertEquals(Version.V1_0, moduleDescriptor.getMinimumCoreVersion());
-        assertEquals(Version.V1_0, moduleDescriptor.getMaximumCoreVersion());
         assertEquals("Test Module 1", moduleDescriptor.getTitle());
         assertEquals(Version.V1_0, moduleDescriptor.getVersion());
         assertArrayEquals(new String[] { "0ddlyoko" }, moduleDescriptor.getAuthors());

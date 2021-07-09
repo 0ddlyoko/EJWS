@@ -35,8 +35,6 @@ public class TestModuleDescriptor {
         ModuleDescriptor moduleDescriptor = new ModuleDescriptor(
                 "test 1",
                 "Test Module 1",
-                Version.V1_0,
-                Version.V1_0,
                 "Test Module 1",
                 Version.V1_0,
                 new String[] { "0ddlyoko" },
@@ -48,8 +46,6 @@ public class TestModuleDescriptor {
         );
         assertEquals("test 1", moduleDescriptor.getName());
         assertEquals("Test Module 1", moduleDescriptor.getDescription());
-        assertEquals(Version.V1_0, moduleDescriptor.getMinimumCoreVersion());
-        assertEquals(Version.V1_0, moduleDescriptor.getMaximumCoreVersion());
         assertEquals("Test Module 1", moduleDescriptor.getTitle());
         assertEquals(Version.V1_0, moduleDescriptor.getVersion());
         assertArrayEquals(new String[] { "0ddlyoko" }, moduleDescriptor.getAuthors());
@@ -66,8 +62,6 @@ public class TestModuleDescriptor {
         ModuleDescriptor descriptor = new ModuleDescriptor(
                 null,
                 "Test Module 1",
-                Version.V1_0,
-                Version.V1_0,
                 "Test Module 1",
                 Version.V1_0,
                 new String[] { "0ddlyoko" },
@@ -85,8 +79,6 @@ public class TestModuleDescriptor {
         ModuleDescriptor descriptor = new ModuleDescriptor(
                 "test 1",
                 "Test Module 1",
-                Version.V1_0,
-                Version.V1_0,
                 "Test Module 1",
                 null,
                 new String[] { "0ddlyoko" },
@@ -104,8 +96,6 @@ public class TestModuleDescriptor {
         ModuleDescriptor descriptor = new ModuleDescriptor(
                 "test 1",
                 null,
-                Version.V1_0,
-                Version.V1_0,
                 "Test Module 1",
                 Version.V1_0,
                 new String[] { "0ddlyoko" },
@@ -119,34 +109,11 @@ public class TestModuleDescriptor {
     }
 
     @Test
-    @DisplayName("Test validate default coreVersion")
-    public void testValidateDefaultCoreVersion() {
-        ModuleDescriptor descriptor = new ModuleDescriptor(
-                "test 1",
-                "Test 1",
-                null,
-                null,
-                "Test Module 1",
-                Version.V1_0,
-                new String[] { "0ddlyoko" },
-                new String[] { },
-                "https://github.com/0ddlyoko/EJWS/issues",
-                "MIT",
-                "https://github.com/0ddlyoko/EJWS/blob/master/LICENSE",
-                "https://github.com/0ddlyoko/EJWS");
-        assertDoesNotThrow(descriptor::validate);
-        assertEquals(EJWS.get().getVersion(), descriptor.getMinimumCoreVersion());
-        assertEquals(EJWS.get().getVersion(), descriptor.getMaximumCoreVersion());
-    }
-
-    @Test
     @DisplayName("Test validate default title")
     public void testValidateDefaultTitle() {
         ModuleDescriptor descriptor = new ModuleDescriptor(
                 "test 1",
                 "Test 1",
-                Version.V1_0,
-                Version.V1_0,
                 null,
                 Version.V1_0,
                 new String[] { "0ddlyoko" },
@@ -165,8 +132,6 @@ public class TestModuleDescriptor {
         ModuleDescriptor descriptor = new ModuleDescriptor(
                 "test 1",
                 "Test 1",
-                Version.V1_0,
-                Version.V1_0,
                 "Test Module 1",
                 null,
                 new String[] { "0ddlyoko" },
@@ -184,8 +149,6 @@ public class TestModuleDescriptor {
         ModuleDescriptor descriptor = new ModuleDescriptor(
                 "test 1",
                 "Test 1",
-                Version.V1_0,
-                Version.V1_0,
                 "Test Module 1",
                 Version.V1_0,
                 null,
@@ -205,8 +168,6 @@ public class TestModuleDescriptor {
         ModuleDescriptor descriptor = new ModuleDescriptor(
                 "test 1",
                 "Test 1",
-                Version.V1_0,
-                Version.V1_0,
                 "Test Module 1",
                 Version.V1_0,
                 new String[] { },
@@ -226,8 +187,6 @@ public class TestModuleDescriptor {
         ModuleDescriptor descriptor = new ModuleDescriptor(
                 "test 1",
                 "Test 1",
-                Version.V1_0,
-                Version.V1_0,
                 "Test Module 1",
                 Version.V1_0,
                 new String[] { "0ddlyoko" },
@@ -246,8 +205,6 @@ public class TestModuleDescriptor {
         ModuleDescriptor descriptor = new ModuleDescriptor(
                 "test 1",
                 "Test 1",
-                Version.V1_0,
-                Version.V1_0,
                 "Test Module 1",
                 Version.V1_0,
                 new String[] { "0ddlyoko" },
@@ -266,8 +223,6 @@ public class TestModuleDescriptor {
         ModuleDescriptor descriptor = new ModuleDescriptor(
                 "test 1",
                 "Test 1",
-                Version.V1_0,
-                Version.V1_0,
                 "Test Module 1",
                 Version.V1_0,
                 new String[] { "0ddlyoko" },
@@ -286,8 +241,6 @@ public class TestModuleDescriptor {
         ModuleDescriptor descriptor = new ModuleDescriptor(
                 "test 1",
                 "Test 1",
-                Version.V1_0,
-                Version.V1_0,
                 "Test Module 1",
                 Version.V1_0,
                 new String[] { "0ddlyoko" },

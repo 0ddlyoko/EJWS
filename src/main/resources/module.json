@@ -1,8 +1,6 @@
 {
   "name": "EJWS",
   "description": "Base Module for EJWS",
-  "minimumCoreVersion": "1.0",
-  "maximumCoreVersion": "2.0",
   "title": "EJWS - Base",
   "version": 1.0,
   "authors": ["0ddlyoko"],
