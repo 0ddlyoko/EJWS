@@ -31,6 +31,7 @@ public final class EJWS {
         Properties properties = new Properties();
         properties.load(getClass().getClassLoader().getResourceAsStream("version.properties"));
         version = Version.of(properties.getProperty("version"));
+        LOGGER.info("Version is {}", version);
         // Load base module
         LOGGER.info("Loading base module");
         moduleManager.loadBaseModule();
