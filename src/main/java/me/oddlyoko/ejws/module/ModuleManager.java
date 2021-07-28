@@ -14,6 +14,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.ServiceLoader;
 import me.oddlyoko.ejws.algo.dependencygraph.DependencyGraph;
+import me.oddlyoko.ejws.base.BaseModule;
 import me.oddlyoko.ejws.base.events.ModuleLoadEvent;
 import me.oddlyoko.ejws.base.events.ModuleUnloadEvent;
 import me.oddlyoko.ejws.base.exceptions.InvalidModuleDescriptorException;
@@ -274,8 +275,8 @@ public class ModuleManager {
                     .orElseThrow(() ->
                             new ModuleNotFoundException(String.format("Module %s not found", BASE_MODULE_NAME)));
             ServiceLoader<Module> moduleServiceLoader = ServiceLoader.load(moduleLayer, Module.class);
-            Module module = moduleServiceLoader.findFirst()
-                    .orElseThrow(() ->
+            Module module = moduleServiceLoader.stream().filter(moduleProvider -> moduleProvider.type() == BaseModule.class)
+                    .findFirst().map(ServiceLoader.Provider::get).orElseThrow(() ->
                             new ModuleProviderNotFoundException(String.format("Module %s does not provide a Module provider !", BASE_MODULE_NAME)));
             // Load the module
             loadModule(
