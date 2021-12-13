@@ -2,6 +2,7 @@ package me.oddlyoko.ejws;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Properties;
 import me.oddlyoko.ejws.base.exceptions.ModuleLoadException;
 import me.oddlyoko.ejws.module.ModuleManager;
@@ -15,34 +16,48 @@ public final class EJWS {
 
     private final Version version;
     private final ModuleManager moduleManager;
+    private final File directory;
+    private final File moduleDirectory;
 
     private EJWS(String[] args) throws ModuleLoadException, IOException {
         ejws = this;
         moduleManager = new ModuleManager();
-        File directory = null;
         if (args.length > 0) {
-            directory = new File(args[0]);
+            this.directory = new File(args[0]);
             LOGGER.info("File is {}", directory.getAbsolutePath());
             if (!directory.exists() || !directory.isDirectory())
                 throw new IllegalArgumentException(String.format("Given directory (%s) argument is not a valid directory", args[0]));
+        } else {
+            // Do not load modules if no directory has been passed through arguments
+            this.directory = new File(".");
         }
+        this.moduleDirectory = new File(directory, "modules");
+        System.out.println(moduleDirectory);
+        if (!this.moduleDirectory.exists() && !this.moduleDirectory.mkdirs())
+            throw new IllegalStateException(String.format("Cannot create directory %s", this.moduleDirectory.getAbsolutePath()));
         LOGGER.info("Loading EJWS, please wait ...");
         // Load version
-        Properties properties = new Properties();
-        properties.load(getClass().getClassLoader().getResourceAsStream("version.properties"));
-        version = Version.of(properties.getProperty("version"));
+        version = getVersionFromResource();
         LOGGER.info("Version is {}", version);
         // Load base module
         LOGGER.info("Loading base module");
         moduleManager.loadBaseModule();
         LOGGER.info("Base module loaded");
-        if (directory != null) {
+        boolean loadModules = true;
+        //boolean loadModules = System.getProperty("LoadModules", "true");
+        if (loadModules) {
             LOGGER.info("Loading modules ...");
             moduleManager.loadAllModules(directory);
-            LOGGER.info("Loaded !");
+            LOGGER.info("Modules loaded !");
         }
-
+        LOGGER.info("EJWS is fully loaded !");
         // TODO Lock here
+    }
+    
+    private Version getVersionFromResource() throws IOException {
+        Properties properties = new Properties();
+        properties.load(getClass().getClassLoader().getResourceAsStream("version.properties"));
+        return Version.of(properties.getProperty("version"));
     }
 
     public void unload() {
@@ -57,6 +72,14 @@ public final class EJWS {
 
     public Version getVersion() {
         return version;
+    }
+
+    public File getDirectory() {
+        return directory;
+    }
+
+    public File getModuleDirectory() {
+        return moduleDirectory;
     }
 
     public static EJWS get() {

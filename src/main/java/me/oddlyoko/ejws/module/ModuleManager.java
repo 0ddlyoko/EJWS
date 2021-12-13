@@ -43,6 +43,7 @@ import org.apache.logging.log4j.Logger;
 public class ModuleManager {
     private static final Logger LOGGER = LogManager.getLogger(ModuleManager.class);
     public static final String MODULE_JSON_NAME = "module.json";
+    public static final String CONFIG_NAME = "config.properties";
     public static final String BASE_MODULE_NAME = "EJWS";
 
     private final Map<String, TheModule<? extends Module>> modulesByName;
