@@ -3,6 +3,10 @@ package me.oddlyoko.ejws.util;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
+import me.oddlyoko.ejws.base.exceptions.InvalidModuleDescriptorException;
+import me.oddlyoko.ejws.module.ModuleDescriptor;
+import me.oddlyoko.ejws.module.ModuleManager;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -19,9 +23,6 @@ import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
-import me.oddlyoko.ejws.base.exceptions.InvalidModuleDescriptorException;
-import me.oddlyoko.ejws.module.ModuleDescriptor;
-import me.oddlyoko.ejws.module.ModuleManager;
 
 public final class ModuleHelper {
 
@@ -197,19 +198,17 @@ public final class ModuleHelper {
     public static <S> Set<S> load(ModuleLayer moduleLayer, Class<S> clazz) {
         ServiceLoader<S> serviceLoader = ServiceLoader.load(moduleLayer, clazz);
         Set<String> modules = moduleLayer.modules()
-                // Stream over each modules
                 .stream()
                 // Retrieves the needed class
                 .map(module ->
                         module.getDescriptor()
                                 .provides()
                                 .stream()
-                                // Filter to retrieves needed class
+                                // Filter to retrieve needed class
                                 .filter(provides ->
                                         clazz.getName().equalsIgnoreCase(provides.service()))
                                 // Returns the first one (In fact, there should only be one element in the stream)
                                 .findFirst())
-                // Here, we have an Optional<Provides>. Filter on existing Provides
                 .filter(Optional::isPresent)
                 // Get provides
                 .map(p -> p.get().providers())

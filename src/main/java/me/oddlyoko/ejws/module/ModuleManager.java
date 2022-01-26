@@ -1,18 +1,5 @@
 package me.oddlyoko.ejws.module;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.InputStreamReader;
-import java.lang.module.ModuleFinder;
-import java.lang.module.ModuleReference;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.ServiceLoader;
 import me.oddlyoko.ejws.algo.dependencygraph.DependencyGraph;
 import me.oddlyoko.ejws.base.BaseModule;
 import me.oddlyoko.ejws.base.events.ModuleLoadEvent;
@@ -27,17 +14,29 @@ import me.oddlyoko.ejws.util.ModuleHelper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.InputStreamReader;
+import java.lang.module.ModuleFinder;
+import java.lang.module.ModuleReference;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.ServiceLoader;
+
 /**
- * The way a module is loaded is like that:<br />ModuleHelper.
+ * The way a module is loaded is like that:
  * <ol>
- *     <li>Check if the {@link ModuleDescriptor} is valid by calling {@link ModuleDescriptor#validate()}</li>
  *     <li>Check if the module isn't already loaded</li>
  *     <li>Retrieves the module instance</li>
  *     <li>Register events with {@link Events#registerEventModule(Class, TheModule)} and {@link Module#getModuleEvents()}</li>
  *     <li>Add the module to the list</li>
  *     <li>Call {@link Module#onEnable()}</li>
  *     <li>Generate and call a {@link ModuleLoadEvent}</li>
- *     <li></li>
  * </ol>
  */
 public class ModuleManager {
@@ -121,7 +120,7 @@ public class ModuleManager {
         // Get a list of files that are valid jar file
         Map<String, ModuleDescriptor> modules = new HashMap<>();
         Map<String, File> files = new HashMap<>();
-        File[] jarFiles = directory.listFiles();
+        File[] jarFiles = directory.listFiles((dir, name) -> name.endsWith(".jar"));
         if (jarFiles == null)
             return 0;
         for (File file : jarFiles) {
@@ -215,12 +214,6 @@ public class ModuleManager {
         M module = theModule.getModule();
         ModuleDescriptor moduleDescriptor = theModule.getModuleDescriptor();
         LOGGER.info("Loading module {}", moduleDescriptor.getName());
-        // Validate the ModuleDescriptor
-        try {
-            theModule.getModuleDescriptor().validate();
-        } catch (InvalidModuleDescriptorException ex) {
-            throw new ModuleLoadException(ex);
-        }
         // Check if module is already loaded
         if (modulesByName.containsKey(moduleDescriptor.getName()))
             throw new ModuleAlreadyLoadedException("A module with the same name is already loaded");
@@ -229,7 +222,7 @@ public class ModuleManager {
         // Check if dependencies are met
         for (String dependency : theModule.getModuleDescriptor().getDependencies())
             if (getTheModule(dependency).isEmpty())
-                throw new ModuleLoadException(theModule, String.format("Missing %s", dependency));
+                throw new ModuleLoadException(theModule, String.format("Missing dependency %s", dependency));
         // Register events
         LOGGER.info("Registering {} events", module.getModuleEvents().size());
         module.getModuleEvents().forEach(eventClass -> Events.registerEventModule(eventClass, theModule));
@@ -302,6 +295,14 @@ public class ModuleManager {
         getTheModule(module.getClass()).ifPresent(this::unloadModule);
     }
 
+
+    /**
+     * Unload a specific module<br />
+     * If a module exists with that class and the module is loaded, call {@link #unloadModule(TheModule)}
+     *
+     * @param moduleName The name of the module to unload
+     * @see #unloadModule(TheModule)
+     */
     public void unloadModule(String moduleName) {
         getTheModule(moduleName).ifPresent(this::unloadModule);
     }
@@ -330,8 +331,7 @@ public class ModuleManager {
             LOGGER.error("Error while calling onDisable():", ex);
         }
         // Unregister events
-        if (theModule.getModule().getModuleEvents() != null)
-            theModule.getModule().getModuleEvents().forEach(Events::unregisterEventModule);
+        theModule.getModule().getModuleEvents().forEach(Events::unregisterEventModule);
         // Remove it from the list
         modulesByName.remove(theModule.getName());
         modulesByClass.remove(theModule.getModule().getClass());

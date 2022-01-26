@@ -1,7 +1,7 @@
 package me.oddlyoko.ejws.base.exceptions;
 
 /**
- * Called when the {@link me.oddlyoko.ejws.module.Module} hasn't been found
+ * Thrown when the {@link me.oddlyoko.ejws.module.Module} hasn't been found
  */
 public class ModuleProviderNotFoundException extends ModuleLoadException {
     private static final long serialVersionUID = 1607274298758150668L;

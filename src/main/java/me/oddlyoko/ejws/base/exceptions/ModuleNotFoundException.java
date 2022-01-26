@@ -1,7 +1,7 @@
 package me.oddlyoko.ejws.base.exceptions;
 
 /**
- * Throws when the Java {@link Module} hasn't been found in the module
+ * Thrown when the Java {@link Module} hasn't been found in the module
  */
 public class ModuleNotFoundException extends ModuleLoadException {
     private static final long serialVersionUID = 3624328805288320278L;

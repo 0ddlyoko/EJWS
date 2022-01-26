@@ -4,7 +4,7 @@ import java.util.Optional;
 import me.oddlyoko.ejws.module.TheModule;
 
 /**
- * Throws when there is an exception about a {@link me.oddlyoko.ejws.module.Module}
+ * Thrown when there is an exception about a {@link me.oddlyoko.ejws.module.Module}
  */
 public class ModuleException extends Exception {
     private static final long serialVersionUID = -2038829587724342133L;

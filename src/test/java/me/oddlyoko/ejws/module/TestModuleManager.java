@@ -1,18 +1,5 @@
 package me.oddlyoko.ejws.module;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-
-import java.io.File;
-import java.net.URISyntaxException;
-import java.util.Optional;
-import java.util.ServiceLoader;
 import me.oddlyoko.ejws.base.BaseModule;
 import me.oddlyoko.ejws.base.events.ModuleLoadEvent;
 import me.oddlyoko.ejws.base.events.ModuleUnloadEvent;
@@ -28,6 +15,15 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.io.File;
+import java.net.URISyntaxException;
+import java.util.Optional;
+import java.util.ServiceLoader;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class TestModuleManager {
@@ -108,15 +104,6 @@ public class TestModuleManager {
         // Load invalid module
         assertThrows(ModuleLoadException.class, () -> moduleManager.loadModule(new File(new File(TestModuleManager.class.getClassLoader().getResource(".").toURI()), "notfound.jar")));
         assertEquals(2, moduleManager.getModules().size());
-    }
-
-    @Test
-    @DisplayName("Test invalid description")
-    public void testLoadInvalidDescriptionModule() {
-        // Load base module
-        assertDoesNotThrow(() -> moduleManager.loadBaseModule());
-        // Should throw
-        assertThrows(ModuleLoadException.class, () -> moduleManager.loadModule(new File(TestModuleManager.class.getClassLoader().getResource("modules/Test1-1.0.jar").toURI()), new ModuleDescriptor()));
     }
 
     @Test

@@ -1,14 +1,14 @@
 package me.oddlyoko.ejws;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.util.Properties;
 import me.oddlyoko.ejws.base.exceptions.ModuleLoadException;
 import me.oddlyoko.ejws.module.ModuleManager;
 import me.oddlyoko.ejws.util.Version;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Properties;
 
 public final class EJWS {
     private static final Logger LOGGER = LogManager.getLogger(EJWS.class);
@@ -51,7 +51,6 @@ public final class EJWS {
             LOGGER.info("Modules loaded !");
         }
         LOGGER.info("EJWS is fully loaded !");
-        // TODO Lock here
     }
     
     private Version getVersionFromResource() throws IOException {

@@ -1,25 +1,20 @@
 package me.oddlyoko.ejws.module;
 
-import java.io.*;
-import java.nio.file.Files;
-import java.util.List;
-import java.util.Optional;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
-
 import me.oddlyoko.ejws.EJWS;
 import me.oddlyoko.ejws.event.Event;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.util.List;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+
 public abstract class Module {
     private static final Logger LOGGER = LogManager.getLogger(EJWS.class);
-    private final TheModule<? extends Module> theModule;
-
-    protected Module() {
-        this.theModule = EJWS.get().getModuleManager().getTheModule(getClass()).orElseThrow(() ->
-                new IllegalStateException(String.format("Cannot find TheModule for module %s", getClass().getName())));
-    }
 
     /**
      * Called when the module is enabling<br />
@@ -42,26 +37,42 @@ public abstract class Module {
     public abstract List<Class<? extends Event>> getModuleEvents();
 
     public TheModule<? extends Module> getTheModule() {
-        return theModule;
+        return EJWS.get().getModuleManager().getTheModule(getClass()).orElseThrow(() ->
+                new IllegalStateException(String.format("Cannot find TheModule for module %s", getClass().getName())));
     }
 
     public File getPath() {
-        return new File(EJWS.get().getModuleDirectory(), theModule.getName());
+        return new File(EJWS.get().getModuleDirectory(), getTheModule().getName());
     }
 
     /**
-     * Load default config from jar file if found
+     * Export default config from jar file if found<br />
+     * If config file has already been exported, do not try to export it again
      */
-    public void loadDefaultConfig() {
-        File file = theModule.getJarFile().orElseThrow(() -> new IllegalStateException(
+    public void exportDefaultConfig() {
+        exportConfig(ModuleManager.CONFIG_NAME);
+    }
+
+    public void exportConfig(String fileName) {
+        exportConfig(fileName, false);
+    }
+
+    /**
+     * Export given config file
+     *
+     * @param fileName The name of the file
+     * @param override Override the exported file if the target file already exist
+     */
+    public void exportConfig(String fileName, boolean override) {
+        File file = getTheModule().getJarFile().orElseThrow(() -> new IllegalStateException(
                 String.format("Could not find Jar file for module %s", getClass().getName())));
-        File target = new File(getPath(), ModuleManager.CONFIG_NAME);
-        if (target.exists())
+        File target = new File(getPath(), fileName);
+        if (target.exists() && !override)
             return;
         try (JarFile jar = new JarFile(file)) {
-            JarEntry entry = jar.getJarEntry(ModuleManager.CONFIG_NAME);
+            JarEntry entry = jar.getJarEntry(fileName);
             if (entry == null) {
-                LOGGER.warn("No config.properties file exist in jar file of module {}", getClass().getName());
+                LOGGER.warn("No {} file exist in jar file of module {}", fileName, getClass().getName());
                 return;
             }
             try (InputStream stream = jar.getInputStream(entry)) {

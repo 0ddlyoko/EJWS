@@ -1,26 +1,24 @@
 package me.oddlyoko.ejws.module;
 
-import java.util.Locale;
 import me.oddlyoko.ejws.base.exceptions.InvalidModuleDescriptorException;
 import me.oddlyoko.ejws.util.StringUtil;
 import me.oddlyoko.ejws.util.Version;
 
+import java.util.Locale;
+
 public class ModuleDescriptor {
-    private String name;
-    private String description;
-    private String title;
-    private Version version;
-    private String[] authors;
-    private String[] dependencies;
-    private String bugs;
-    private String license;
-    private String licenseUrl;
-    private String url;
+    private final String name;
+    private final String description;
+    private final String title;
+    private final Version version;
+    private final String[] authors;
+    private final String[] dependencies;
+    private final String bugs;
+    private final String license;
+    private final String licenseUrl;
+    private final String url;
 
-    public ModuleDescriptor() {
-    }
-
-    public ModuleDescriptor(String name, String description, String title, Version version, String[] authors, String[] dependencies, String bugs, String license, String licenseUrl, String url) {
+    private ModuleDescriptor(String name, String description, String title, Version version, String[] authors, String[] dependencies, String bugs, String license, String licenseUrl, String url) {
         this.name = name;
         this.description = description;
         this.title = title;
@@ -92,28 +90,91 @@ public class ModuleDescriptor {
      *     <li><b>url</b>: <i>https://github.com</i></li>
      * </ul>
      */
-    public void validate() throws InvalidModuleDescriptorException {
-        // Check if required fields exist
-        if (StringUtil.isBlank(name))
-            throw new InvalidModuleDescriptorException("Name should exist");
-        if (version == null)
-            throw new InvalidModuleDescriptorException("Version should exist");
-        // Set default fields
-        if (StringUtil.isBlank(description))
-            description = name.substring(0, 1).toUpperCase(Locale.ENGLISH) + name.substring(1) + " - Description not found";
-        if (StringUtil.isBlank(title))
-            title = name.substring(0, 1).toUpperCase(Locale.ENGLISH) + name.substring(1);
-        if (authors == null)
-            authors = new String[0];
-        if (dependencies == null)
-            dependencies = new String[0];
-        if (StringUtil.isBlank(license))
-            license = "Unknown";
-        if (StringUtil.isBlank(url))
-            url = "https://github.com";
-        if (StringUtil.isBlank(bugs))
-            bugs = url;
-        if (StringUtil.isBlank(licenseUrl))
-            licenseUrl = url;
+    public static ModuleDescriptorBuilder builder(String name, Version version) {
+        return new ModuleDescriptorBuilder(name, version);
+    }
+
+    public static class ModuleDescriptorBuilder {
+        private final String name;
+        private final Version version;
+        private String description;
+        private String title;
+        private String[] authors;
+        private String[] dependencies;
+        private String bugs;
+        private String license;
+        private String licenseUrl;
+        private String url;
+
+        private ModuleDescriptorBuilder(String name, Version version) {
+            this.name = name;
+            this.version = version;
+        }
+
+        public ModuleDescriptorBuilder description(String description) {
+            this.description = description;
+            return this;
+        }
+
+        public ModuleDescriptorBuilder title(String title) {
+            this.title = title;
+            return this;
+        }
+
+        public ModuleDescriptorBuilder authors(String... authors) {
+            this.authors = authors;
+            return this;
+        }
+
+        public ModuleDescriptorBuilder dependencies(String... dependencies) {
+            this.dependencies = dependencies;
+            return this;
+        }
+
+        public ModuleDescriptorBuilder bugs(String bugs) {
+            this.bugs = bugs;
+            return this;
+        }
+
+        public ModuleDescriptorBuilder license(String license) {
+            this.license = license;
+            return this;
+        }
+
+        public ModuleDescriptorBuilder licenseUrl(String licenseUrl) {
+            this.licenseUrl = licenseUrl;
+            return this;
+        }
+
+        public ModuleDescriptorBuilder url(String url) {
+            this.url = url;
+            return this;
+        }
+
+        public ModuleDescriptor build() throws InvalidModuleDescriptorException {
+            // Check if required fields exist
+            if (StringUtil.isBlank(name))
+                throw new InvalidModuleDescriptorException("Name should exist");
+            if (version == null)
+                throw new InvalidModuleDescriptorException("Version should exist");
+            // Set default fields
+            if (StringUtil.isBlank(description))
+                description = name.substring(0, 1).toUpperCase(Locale.ENGLISH) + name.substring(1) + " - Description not found";
+            if (StringUtil.isBlank(title))
+                title = name.substring(0, 1).toUpperCase(Locale.ENGLISH) + name.substring(1);
+            if (authors == null)
+                authors = new String[0];
+            if (dependencies == null)
+                dependencies = new String[0];
+            if (StringUtil.isBlank(license))
+                license = "Unknown";
+            if (StringUtil.isBlank(url))
+                url = "https://github.com";
+            if (StringUtil.isBlank(bugs))
+                bugs = "https://github.com/0ddlyoko/EJWS/issues";
+            if (StringUtil.isBlank(licenseUrl))
+                licenseUrl = "https://github.com/0ddlyoko/EJWS/LICENSE";
+            return new ModuleDescriptor(name, description, title, version, authors, dependencies, bugs, license, licenseUrl, url);
+        }
     }
 }
