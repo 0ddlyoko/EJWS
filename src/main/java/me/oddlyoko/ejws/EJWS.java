@@ -28,11 +28,10 @@ public final class EJWS {
             if (!directory.exists() || !directory.isDirectory())
                 throw new IllegalArgumentException(String.format("Given directory (%s) argument is not a valid directory", args[0]));
         } else {
-            // Do not load modules if no directory has been passed through arguments
             this.directory = new File(".");
+            LOGGER.info("File is {}", directory.getAbsolutePath());
         }
         this.moduleDirectory = new File(directory, "modules");
-        System.out.println(moduleDirectory);
         if (!this.moduleDirectory.exists() && !this.moduleDirectory.mkdirs())
             throw new IllegalStateException(String.format("Cannot create directory %s", this.moduleDirectory.getAbsolutePath()));
         LOGGER.info("Loading EJWS, please wait ...");
@@ -43,8 +42,7 @@ public final class EJWS {
         LOGGER.info("Loading base module");
         moduleManager.loadBaseModule();
         LOGGER.info("Base module loaded");
-        boolean loadModules = true;
-        //boolean loadModules = System.getProperty("LoadModules", "true");
+        boolean loadModules = Boolean.parseBoolean(System.getProperty("LoadModules", "true"));
         if (loadModules) {
             LOGGER.info("Loading modules ...");
             moduleManager.loadAllModules(directory);

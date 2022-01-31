@@ -15,6 +15,7 @@ import java.util.jar.JarFile;
 
 public abstract class Module {
     private static final Logger LOGGER = LogManager.getLogger(EJWS.class);
+    private TheModule<? extends Module> theModule;
 
     /**
      * Called when the module is enabling<br />
@@ -37,8 +38,10 @@ public abstract class Module {
     public abstract List<Class<? extends Event>> getModuleEvents();
 
     public TheModule<? extends Module> getTheModule() {
-        return EJWS.get().getModuleManager().getTheModule(getClass()).orElseThrow(() ->
-                new IllegalStateException(String.format("Cannot find TheModule for module %s", getClass().getName())));
+        if (theModule == null)
+            theModule = EJWS.get().getModuleManager().getTheModule(getClass()).orElseThrow(() ->
+                    new IllegalStateException(String.format("Cannot find TheModule for module %s", getClass().getName())));
+        return theModule;
     }
 
     public File getPath() {
@@ -72,7 +75,7 @@ public abstract class Module {
         try (JarFile jar = new JarFile(file)) {
             JarEntry entry = jar.getJarEntry(fileName);
             if (entry == null) {
-                LOGGER.warn("No {} file exist in jar file of module {}", fileName, getClass().getName());
+                LOGGER.warn("{} file does not exist in jar file of module {}", fileName, getClass().getName());
                 return;
             }
             try (InputStream stream = jar.getInputStream(entry)) {

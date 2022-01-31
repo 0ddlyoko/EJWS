@@ -18,6 +18,13 @@ public class ModuleDescriptor {
     private final String licenseUrl;
     private final String url;
 
+    /**
+     * Gson
+     */
+    private ModuleDescriptor() {
+        this(null, null, null, null, null, null, null, null, null, null);
+    }
+
     private ModuleDescriptor(String name, String description, String title, Version version, String[] authors, String[] dependencies, String bugs, String license, String licenseUrl, String url) {
         this.name = name;
         this.description = description;
