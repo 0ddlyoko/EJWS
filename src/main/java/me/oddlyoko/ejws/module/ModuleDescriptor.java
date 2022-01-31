@@ -19,9 +19,10 @@ public class ModuleDescriptor {
     private final String url;
 
     /**
-     * Gson
+     * Used by Gson
      */
     private ModuleDescriptor() {
+        // I had to do that otherwise it wasn't possible to use final variables
         this(null, null, null, null, null, null, null, null, null, null);
     }
 
@@ -78,25 +79,6 @@ public class ModuleDescriptor {
         return url;
     }
 
-    /**
-     * Check if the descriptor is valid and add some other stuff like minimum and maximum version.<br />
-     * Module Descriptor is invalid if:
-     * <ul>
-     *     <li><b>name</b> or <b>version</b> is null or empty</li>
-     * </ul>
-     * Default fields are:
-     * <ul>
-     *     <li><b>description</b>: <i>{Name} - Description not found</i></li>
-     *     <li><b>title</b>: <i>{Name}</i></li>
-     *     <li><b>version</b>: <i>1.0.0</i></li>
-     *     <li><b>authors</b>: <i>[]</i></li>
-     *     <li><b>dependencies</b>: <i>[]</i></li>
-     *     <li><b>bugs</b>: <i>{url}</i></li>
-     *     <li><b>license</b>: <i>Unknown</i></li>
-     *     <li><b>licenseUrl</b>: <i>{url}</i></li>
-     *     <li><b>url</b>: <i>https://github.com</i></li>
-     * </ul>
-     */
     public static ModuleDescriptorBuilder builder(String name, Version version) {
         return new ModuleDescriptorBuilder(name, version);
     }
