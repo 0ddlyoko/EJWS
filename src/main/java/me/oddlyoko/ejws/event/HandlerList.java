@@ -1,13 +1,13 @@
 package me.oddlyoko.ejws.event;
 
-import java.util.EnumMap;
-import java.util.LinkedHashSet;
-import java.util.Set;
-
+import me.oddlyoko.ejws.module.TheModule;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import me.oddlyoko.ejws.module.TheModule;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
 /**
  * List of {@link EventHandler} that will be called when a specific {@link Event} is published
@@ -17,13 +17,11 @@ import me.oddlyoko.ejws.module.TheModule;
 public class HandlerList<E extends Event> {
     private static final Logger LOGGER = LogManager.getLogger(HandlerList.class);
     private final TheModule<?> theModule;
-    private final EnumMap<Priority, Set<EventHandler<E>>> listeners;
+    private final Map<Integer, Set<EventHandler<E>>> listeners;
 
     public HandlerList(TheModule<?> theModule) {
         this.theModule = theModule;
-        this.listeners = new EnumMap<>(Priority.class);
-        for (Priority p : Priority.values())
-            listeners.put(p, new LinkedHashSet<>());
+        this.listeners = new TreeMap<>();
     }
 
     /**
@@ -32,8 +30,8 @@ public class HandlerList<E extends Event> {
      * @param priority     The priority of the event
      * @param eventHandler The action to execute
      */
-    public void subscribe(Priority priority, EventHandler<E> eventHandler) {
-        Set<EventHandler<E>> eventHandlers = listeners.get(priority);
+    public void subscribe(int priority, EventHandler<E> eventHandler) {
+        Set<EventHandler<E>> eventHandlers = listeners.computeIfAbsent(priority, k -> new LinkedHashSet<>());
         eventHandlers.add(eventHandler);
     }
 

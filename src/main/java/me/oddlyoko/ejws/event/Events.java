@@ -1,9 +1,10 @@
 package me.oddlyoko.ejws.event;
 
+import me.oddlyoko.ejws.module.TheModule;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import me.oddlyoko.ejws.module.TheModule;
 
 /**
  * The Event Manager class<br />
@@ -11,6 +12,11 @@ import me.oddlyoko.ejws.module.TheModule;
  */
 public final class Events {
     private static final Map<Class<? extends Event>, HandlerList<? extends Event>> events = new HashMap<>();
+    public static final int LOWEST = 0;
+    public static final int LOW = 25;
+    public static final int NORMAL = 50;
+    public static final int HIGH = 75;
+    public static final int HIGHEST = 100;
 
     private Events() {
     }
@@ -61,7 +67,7 @@ public final class Events {
 
     /**
      * Execute an action when given event is performed<br />
-     * Subscribe the action as default priority of {@link Priority#NORMAL}<br />
+     * Subscribe the action as default priority of {@link Events#NORMAL}<br />
      * Same as <pre>Events.subscribe(clazz, Priority.NORMAL, eventHandler);</pre>
      *
      * @param clazz        The given event class
@@ -69,7 +75,7 @@ public final class Events {
      * @param <E>          The generic Event class
      */
     public static <E extends Event> void subscribe(Class<E> clazz, EventHandler<E> eventHandler) {
-        subscribe(clazz, Priority.NORMAL, eventHandler);
+        subscribe(clazz, Events.NORMAL, eventHandler);
     }
 
     /**
@@ -79,9 +85,8 @@ public final class Events {
      * @param priority     The priority of the event
      * @param eventHandler The action to execute
      * @param <E>          The generic Event class
-     * @see Priority
      */
-    public static <E extends Event> void subscribe(Class<E> clazz, Priority priority, EventHandler<E> eventHandler) {
+    public static <E extends Event> void subscribe(Class<E> clazz, int priority, EventHandler<E> eventHandler) {
         getHandlerList(clazz).orElseThrow(() -> new IllegalStateException(
                 String.format("Trying to subscribe an event that has never been initialized ! (%s)", clazz.getSimpleName())
         )).subscribe(priority, eventHandler);

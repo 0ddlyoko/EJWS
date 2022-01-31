@@ -1,16 +1,23 @@
 package me.oddlyoko.ejws.event;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.Mockito.*;
-
+import me.oddlyoko.ejws.event.src.JoinEvent;
 import me.oddlyoko.ejws.event.src.QuitEvent;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import me.oddlyoko.ejws.event.src.JoinEvent;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 public class TestEvents {
@@ -102,7 +109,7 @@ public class TestEvents {
     }
 
     /**
-     * Default priority is {@link Priority#NORMAL}<br />
+     * Default priority is {@link Events#NORMAL}<br />
      * If multiple event exist with same priority, event should be called an a "FIFO" queue
      */
     @Test
@@ -143,11 +150,11 @@ public class TestEvents {
                                     @Mock EventHandler<JoinEvent> joinEvent4EventHandler,
                                     @Mock EventHandler<JoinEvent> joinEvent5EventHandler) {
         // Order: 1 - 3 - 5 - 4 - 2
-        Events.subscribe(JoinEvent.class, Priority.LOWEST, joinEvent1EventHandler);
-        Events.subscribe(JoinEvent.class, Priority.HIGHEST, joinEvent2EventHandler);
-        Events.subscribe(JoinEvent.class, Priority.LOW, joinEvent3EventHandler);
-        Events.subscribe(JoinEvent.class, Priority.HIGH, joinEvent4EventHandler);
-        Events.subscribe(JoinEvent.class, Priority.NORMAL, joinEvent5EventHandler);
+        Events.subscribe(JoinEvent.class, Events.LOWEST, joinEvent1EventHandler);
+        Events.subscribe(JoinEvent.class, Events.HIGHEST, joinEvent2EventHandler);
+        Events.subscribe(JoinEvent.class, Events.LOW, joinEvent3EventHandler);
+        Events.subscribe(JoinEvent.class, Events.HIGH, joinEvent4EventHandler);
+        Events.subscribe(JoinEvent.class, Events.NORMAL, joinEvent5EventHandler);
 
         InOrder inOrder = inOrder(joinEvent1EventHandler,
                 joinEvent2EventHandler,

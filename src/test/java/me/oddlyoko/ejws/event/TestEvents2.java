@@ -66,11 +66,11 @@ public class TestEvents2 {
                           @Mock EventHandler<JoinEvent> event4) {
         Events.registerEventModule(JoinEvent.class, null);
         // Order: event2, event3, event, event1, event4
-        Events.subscribe(JoinEvent.class, Priority.NORMAL, event);
-        Events.subscribe(JoinEvent.class, Priority.HIGH, event1);
-        Events.subscribe(JoinEvent.class, Priority.LOWEST, event2);
-        Events.subscribe(JoinEvent.class, Priority.LOW, event3);
-        Events.subscribe(JoinEvent.class, Priority.HIGHEST, event4);
+        Events.subscribe(JoinEvent.class, Events.NORMAL, event);
+        Events.subscribe(JoinEvent.class, Events.HIGH, event1);
+        Events.subscribe(JoinEvent.class, Events.LOWEST, event2);
+        Events.subscribe(JoinEvent.class, Events.LOW, event3);
+        Events.subscribe(JoinEvent.class, Events.HIGHEST, event4);
         doAnswer(invocation -> {
             throw new IllegalStateException();
         }).when(event).execute(any());

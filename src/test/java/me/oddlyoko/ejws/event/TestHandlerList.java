@@ -1,9 +1,5 @@
 package me.oddlyoko.ejws.event;
 
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-
 import me.oddlyoko.ejws.event.src.JoinEvent;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,6 +8,10 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
 @ExtendWith(MockitoExtension.class)
 public class TestHandlerList {
 
@@ -19,7 +19,7 @@ public class TestHandlerList {
     @DisplayName("Test HandlerList.subscribe()")
     public void testSubscribe(@Mock EventHandler<JoinEvent> eventHandler) {
         HandlerList<JoinEvent> handlerList = new HandlerList<>(null);
-        handlerList.subscribe(Priority.LOWEST, eventHandler);
+        handlerList.subscribe(Events.LOWEST, eventHandler);
         // Test Publish
         JoinEvent e = new JoinEvent();
         handlerList.publish(e);
@@ -39,16 +39,16 @@ public class TestHandlerList {
                                @Mock EventHandler<JoinEvent> eventHandler8,
                                @Mock EventHandler<JoinEvent> eventHandler9) {
         HandlerList<JoinEvent> handlerList = new HandlerList<>(null);
-        handlerList.subscribe(Priority.LOWEST, eventHandler);
-        handlerList.subscribe(Priority.LOW, eventHandler1);
-        handlerList.subscribe(Priority.NORMAL, eventHandler2);
-        handlerList.subscribe(Priority.HIGH, eventHandler3);
-        handlerList.subscribe(Priority.HIGHEST, eventHandler4);
-        handlerList.subscribe(Priority.LOWEST, eventHandler5);
-        handlerList.subscribe(Priority.LOW, eventHandler6);
-        handlerList.subscribe(Priority.NORMAL, eventHandler7);
-        handlerList.subscribe(Priority.HIGH, eventHandler8);
-        handlerList.subscribe(Priority.HIGHEST, eventHandler9);
+        handlerList.subscribe(Events.LOWEST, eventHandler);
+        handlerList.subscribe(Events.LOW, eventHandler1);
+        handlerList.subscribe(Events.NORMAL, eventHandler2);
+        handlerList.subscribe(Events.HIGH, eventHandler3);
+        handlerList.subscribe(Events.HIGHEST, eventHandler4);
+        handlerList.subscribe(Events.LOWEST, eventHandler5);
+        handlerList.subscribe(Events.LOW, eventHandler6);
+        handlerList.subscribe(Events.NORMAL, eventHandler7);
+        handlerList.subscribe(Events.HIGH, eventHandler8);
+        handlerList.subscribe(Events.HIGHEST, eventHandler9);
         InOrder inOrder = inOrder(eventHandler,
                 eventHandler1,
                 eventHandler2,
