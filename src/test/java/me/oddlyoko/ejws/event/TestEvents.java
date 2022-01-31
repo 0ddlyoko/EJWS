@@ -1,9 +1,10 @@
 package me.oddlyoko.ejws.event;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.Mockito.*;
-
+import me.oddlyoko.ejws.event.src.JoinEvent;
+import me.oddlyoko.ejws.event.src.QuitEvent;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,21 +12,37 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import me.oddlyoko.ejws.event.src.JoinEvent;
-import me.oddlyoko.ejws.event.src.QuitEvent;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 public class TestEvents {
 
+    @BeforeAll
+    public static void beforeAll() {
+        Events.registerEventModule(JoinEvent.class, null);
+        Events.registerEventModule(QuitEvent.class, null);
+    }
+
+    @AfterAll
+    public static void afterAll() {
+        Events.unregisterEventModule(JoinEvent.class);
+        Events.unregisterEventModule(QuitEvent.class);
+    }
+
     @AfterEach
-    void clearEvents() {
+    public void afterEach() {
         Events.unsubscribe(JoinEvent.class);
         Events.unsubscribe(QuitEvent.class);
     }
 
     @Test
     @DisplayName("Test Subscribe Single Event")
-    void testSubscribeSingleEvent(@Mock EventHandler<JoinEvent> joinEventEventHandler) {
+    public void testSubscribeSingleEvent(@Mock EventHandler<JoinEvent> joinEventEventHandler) {
         Events.subscribe(JoinEvent.class, joinEventEventHandler);
 
         JoinEvent joinEvent = new JoinEvent();
@@ -36,7 +53,7 @@ public class TestEvents {
 
     @Test
     @DisplayName("Test Subscribe Multiple Event")
-    void testSubscribeMultipleEvent(@Mock EventHandler<JoinEvent> joinEvent1EventHandler,
+    public void testSubscribeMultipleEvent(@Mock EventHandler<JoinEvent> joinEvent1EventHandler,
                                     @Mock EventHandler<JoinEvent> joinEvent2EventHandler) {
         Events.subscribe(JoinEvent.class, joinEvent1EventHandler);
         Events.subscribe(JoinEvent.class, joinEvent2EventHandler);
@@ -50,7 +67,7 @@ public class TestEvents {
 
     @Test
     @DisplayName("Test Subscribe Different Event")
-    void testSubscribeDifferentEvent(@Mock EventHandler<JoinEvent> joinEvent1EventHandler,
+    public void testSubscribeDifferentEvent(@Mock EventHandler<JoinEvent> joinEvent1EventHandler,
                                      @Mock EventHandler<JoinEvent> joinEvent2EventHandler,
                                      @Mock EventHandler<QuitEvent> quitEventEventHandler) {
         Events.subscribe(JoinEvent.class, joinEvent1EventHandler);
@@ -67,7 +84,7 @@ public class TestEvents {
 
     @Test
     @DisplayName("Test Register Same Event")
-    void testRegisterSameEvent(@Mock EventHandler<JoinEvent> joinEvent1EventHandler) {
+    public void testRegisterSameEvent(@Mock EventHandler<JoinEvent> joinEvent1EventHandler) {
         Events.subscribe(JoinEvent.class, joinEvent1EventHandler);
         Events.subscribe(JoinEvent.class, joinEvent1EventHandler);
 
@@ -80,7 +97,7 @@ public class TestEvents {
 
     @Test
     @DisplayName("Test Subscribe Unregistered Event")
-    void testSubscribeUnregisteredEvent(@Mock EventHandler<JoinEvent> joinEvent1EventHandler,
+    public void testSubscribeUnregisteredEvent(@Mock EventHandler<JoinEvent> joinEvent1EventHandler,
                                         @Mock EventHandler<JoinEvent> joinEvent2EventHandler) {
         Events.subscribe(JoinEvent.class, joinEvent1EventHandler);
 
@@ -92,12 +109,12 @@ public class TestEvents {
     }
 
     /**
-     * Default priority is {@link Priority#NORMAL}<br />
+     * Default priority is {@link Events#NORMAL}<br />
      * If multiple event exist with same priority, event should be called an a "FIFO" queue
      */
     @Test
     @DisplayName("Test Subscribe Default Priority Event")
-    void testSubscribeDefaultPriorityEvent(@Mock EventHandler<JoinEvent> joinEvent1EventHandler,
+    public void testSubscribeDefaultPriorityEvent(@Mock EventHandler<JoinEvent> joinEvent1EventHandler,
                                            @Mock EventHandler<JoinEvent> joinEvent2EventHandler,
                                            @Mock EventHandler<JoinEvent> joinEvent3EventHandler,
                                            @Mock EventHandler<JoinEvent> joinEvent4EventHandler,
@@ -127,17 +144,17 @@ public class TestEvents {
 
     @Test
     @DisplayName("Test Subscribe Other Priority Event")
-    void testSubscribePriorityEvent(@Mock EventHandler<JoinEvent> joinEvent1EventHandler,
+    public void testSubscribePriorityEvent(@Mock EventHandler<JoinEvent> joinEvent1EventHandler,
                                     @Mock EventHandler<JoinEvent> joinEvent2EventHandler,
                                     @Mock EventHandler<JoinEvent> joinEvent3EventHandler,
                                     @Mock EventHandler<JoinEvent> joinEvent4EventHandler,
                                     @Mock EventHandler<JoinEvent> joinEvent5EventHandler) {
         // Order: 1 - 3 - 5 - 4 - 2
-        Events.subscribe(JoinEvent.class, Priority.LOWEST, joinEvent1EventHandler);
-        Events.subscribe(JoinEvent.class, Priority.HIGHER, joinEvent2EventHandler);
-        Events.subscribe(JoinEvent.class, Priority.LOWER, joinEvent3EventHandler);
-        Events.subscribe(JoinEvent.class, Priority.HIGH, joinEvent4EventHandler);
-        Events.subscribe(JoinEvent.class, Priority.NORMAL, joinEvent5EventHandler);
+        Events.subscribe(JoinEvent.class, Events.LOWEST, joinEvent1EventHandler);
+        Events.subscribe(JoinEvent.class, Events.HIGHEST, joinEvent2EventHandler);
+        Events.subscribe(JoinEvent.class, Events.LOW, joinEvent3EventHandler);
+        Events.subscribe(JoinEvent.class, Events.HIGH, joinEvent4EventHandler);
+        Events.subscribe(JoinEvent.class, Events.NORMAL, joinEvent5EventHandler);
 
         InOrder inOrder = inOrder(joinEvent1EventHandler,
                 joinEvent2EventHandler,
@@ -157,7 +174,7 @@ public class TestEvents {
 
     @Test
     @DisplayName("Test Unsubscribe Event")
-    void testUnsubscribeEvent(@Mock EventHandler<JoinEvent> joinEvent1EventHandler,
+    public void testUnsubscribeEvent(@Mock EventHandler<JoinEvent> joinEvent1EventHandler,
                               @Mock EventHandler<JoinEvent> joinEvent2EventHandler) {
         Events.subscribe(JoinEvent.class, joinEvent1EventHandler);
         Events.subscribe(JoinEvent.class, joinEvent2EventHandler);
@@ -178,7 +195,7 @@ public class TestEvents {
 
     @Test
     @DisplayName("Test Unsubscribe Class Event")
-    void testUnsubscribeClassEvent(@Mock EventHandler<JoinEvent> joinEvent1EventHandler,
+    public void testUnsubscribeClassEvent(@Mock EventHandler<JoinEvent> joinEvent1EventHandler,
                                    @Mock EventHandler<JoinEvent> joinEvent2EventHandler,
                                    @Mock EventHandler<QuitEvent> quitEventEventHandler) {
         Events.subscribe(JoinEvent.class, joinEvent1EventHandler);
@@ -207,7 +224,7 @@ public class TestEvents {
 
     @Test
     @DisplayName("Test Get HandlerList")
-    void testGetHandlerList(@Mock EventHandler<JoinEvent> joinEvent1EventHandler,
+    public void testGetHandlerList(@Mock EventHandler<JoinEvent> joinEvent1EventHandler,
                             @Mock EventHandler<JoinEvent> joinEvent2EventHandler,
                             @Mock EventHandler<QuitEvent> quitEventEventHandler) {
         Events.subscribe(JoinEvent.class, joinEvent1EventHandler);
